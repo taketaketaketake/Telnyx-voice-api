@@ -32,7 +32,7 @@ export async function answerCallWithAI(callControlId) {
 
     // Start AI assistant (configuration depends on Telnyx API structure)
     // NOTE: This is a placeholder - adjust based on actual Telnyx AI API
-    const aiResponse = await telnyxClient.post(`/calls/${callControlId}/actions/ai_assistant`, {
+    const aiResponse = await telnyxClient.post(`/calls/${callControlId}/actions/ai_assistant_start`, {
       system_prompt: hendrixSystemPrompt,
       initial_message: "Hi, this is Hendrix with Fix My Furnace. How are you today?",
       model: telnyxAIConfig.model,
@@ -50,7 +50,10 @@ export async function answerCallWithAI(callControlId) {
     return aiResponse.data;
 
   } catch (error) {
-    console.error('❌ Error starting AI assistant:', error.response?.data || error.message);
+    console.error('❌ Error starting AI assistant:');
+    console.error('Status:', error.response?.status);
+    console.error('Data:', JSON.stringify(error.response?.data, null, 2));
+    console.error('Message:', error.message);
     throw error;
   }
 }
