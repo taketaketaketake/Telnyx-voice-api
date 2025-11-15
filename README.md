@@ -23,7 +23,7 @@ A low-latency AI voice assistant for Fix My Furnace using Telnyx's latest APIs.
 - **Transcription**: deepgram/Flux
 - **Backend**: Node.js + Express
 - **Database**: SQLite (better-sqlite3)
-- **API Client**: Official Telnyx Node.js SDK v2.1.1
+- **API Client**: Official Telnyx Node.js SDK v4.2.1
 - **API Platform**: Telnyx Voice API
 
 ## Project Structure
@@ -413,7 +413,7 @@ railway up
 
 ### SDK Integration
 
-This project uses the **official Telnyx Node.js SDK v2.1.1** for improved reliability and type safety.
+This project uses the **official Telnyx Node.js SDK v4.2.1** for improved reliability and type safety.
 
 **Benefits:**
 - ✅ Full TypeScript support with autocomplete
