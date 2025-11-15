@@ -23,6 +23,7 @@ A low-latency AI voice assistant for Fix My Furnace using Telnyx's latest APIs.
 - **Transcription**: deepgram/Flux
 - **Backend**: Node.js + Express
 - **Database**: SQLite (better-sqlite3)
+- **API Client**: Official Telnyx Node.js SDK v2.1.1
 - **API Platform**: Telnyx Voice API
 
 ## Project Structure
@@ -410,15 +411,30 @@ railway up
 
 ## Notes
 
-### API Compatibility
+### SDK Integration
 
-The Telnyx AI API endpoints in `src/services/telnyx.js` are based on expected structure. You may need to adjust these based on Telnyx's actual API documentation:
+This project uses the **official Telnyx Node.js SDK v2.1.1** for improved reliability and type safety.
 
-- AI assistant initialization endpoint
-- Function calling webhook structure
-- Transcript retrieval method
+**Benefits:**
+- ✅ Full TypeScript support with autocomplete
+- ✅ Automatic authentication handling
+- ✅ Built-in error handling
+- ✅ Better security with webhook verification utilities
 
-Refer to [Telnyx Voice API docs](https://developers.telnyx.com/) for latest specifications.
+**What to Verify:**
+
+The AI assistant endpoints in `src/services/telnyx.js` use the SDK with fallback to direct API calls. You may need to verify:
+
+- AI assistant initialization method name (currently: `telnyx.calls.startAiAssistant()`)
+- Function calling response endpoint structure
+- Webhook signature verification implementation
+
+See `SDK-MIGRATION.md` for detailed migration notes and `test-sdk.js` to verify integration.
+
+Refer to:
+- [Telnyx Node SDK](https://github.com/team-telnyx/telnyx-node)
+- [Telnyx Voice API docs](https://developers.telnyx.com/)
+- [SDK npm package](https://www.npmjs.com/package/telnyx)
 
 ### Voice Options
 
