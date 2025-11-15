@@ -34,6 +34,7 @@ export async function answerCallWithAI(callControlId) {
     // NOTE: This is a placeholder - adjust based on actual Telnyx AI API
     const aiResponse = await telnyxClient.post(`/calls/${callControlId}/actions/ai_assistant`, {
       system_prompt: hendrixSystemPrompt,
+      initial_message: "Hi, this is Hendrix with Fix My Furnace. How are you today?",
       model: telnyxAIConfig.model,
       voice: telnyxAIConfig.voice,
       transcription: telnyxAIConfig.transcription,
