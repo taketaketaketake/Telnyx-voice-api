@@ -1,16 +1,23 @@
-import Telnyx from 'telnyx';
+import axios from 'axios';
 import dotenv from 'dotenv';
 import { hendrixSystemPrompt, telnyxAIConfig, functionDefinitions } from '../config/hendrix.js';
 
 dotenv.config();
+
+const TELNYX_API_BASE = 'https://api.telnyx.com/v2';
+const API_KEY = process.env.TELNYX_API_KEY;
 
 /**
  * Telnyx API Service
  * Handles interactions with Telnyx Voice API
  */
 
-const telnyx = new Telnyx({
-  apiKey: process.env.TELNYX_API_KEY
+const telnyxClient = axios.create({
+  baseURL: TELNYX_API_BASE,
+  headers: {
+    'Authorization': `Bearer ${API_KEY}`,
+    'Content-Type': 'application/json'
+  }
 });
 
 /**
@@ -21,10 +28,10 @@ export async function answerCallWithAI(callControlId) {
     console.log('📞 Answering call:', callControlId);
 
     // Answer the call
-    await telnyx.calls.answer(callControlId);
+    await telnyxClient.post(`/calls/${callControlId}/actions/answer`);
 
     // Start AI assistant
-    const aiResponse = await telnyx.calls.aiAssistantStart(callControlId, {
+    const aiResponse = await telnyxClient.post(`/calls/${callControlId}/actions/ai_assistant_start`, {
       system_prompt: hendrixSystemPrompt,
       initial_message: "Hi, this is Hendrix with Fix My Furnace. How are you today?",
       model: telnyxAIConfig.model,
@@ -43,8 +50,8 @@ export async function answerCallWithAI(callControlId) {
 
   } catch (error) {
     console.error('❌ Error starting AI assistant:');
-    console.error('Status:', error.status);
-    console.error('Data:', JSON.stringify(error.body, null, 2));
+    console.error('Status:', error.response?.status);
+    console.error('Data:', JSON.stringify(error.response?.data, null, 2));
     console.error('Message:', error.message);
     throw error;
   }
@@ -56,10 +63,10 @@ export async function answerCallWithAI(callControlId) {
 export async function hangupCall(callControlId) {
   try {
     console.log('📵 Hanging up call:', callControlId);
-    await telnyx.calls.hangup(callControlId);
+    await telnyxClient.post(`/calls/${callControlId}/actions/hangup`);
     console.log('✅ Call hung up');
   } catch (error) {
-    console.error('❌ Error hanging up call:', error.body || error.message);
+    console.error('❌ Error hanging up call:', error.response?.data || error.message);
     throw error;
   }
 }
