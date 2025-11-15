@@ -48,6 +48,11 @@ app.get('/', (req, res) => {
   });
 });
 
+// Admin dashboard
+app.get('/admin', (req, res) => {
+  res.sendFile(new URL('../src/views/admin.html', import.meta.url).pathname);
+});
+
 // Telnyx webhook endpoint
 app.post('/webhooks/telnyx', handleCallWebhook);
 

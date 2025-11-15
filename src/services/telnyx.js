@@ -55,22 +55,39 @@ export async function answerCallWithAI(callControlId) {
     // If this method doesn't exist, we'll need to use direct API call
     let aiResponse;
 
+    const assistantId = process.env.TELNYX_ASSISTANT_ID;
+    console.log('🔧 Assistant ID from env:', assistantId);
+
+    // Test if assistant exists first
+    try {
+      console.log('🔧 Testing assistant access...');
+      const testResponse = await telnyx.request({
+        method: 'GET',
+        path: `/ai/assistants/${assistantId}`
+      });
+      console.log('✅ Assistant found:', testResponse.data?.name || 'Unknown name');
+    } catch (testError) {
+      console.log('❌ Assistant test failed:', testError.message);
+      // Continue anyway in case the GET endpoint is different
+    }
+
     const aiConfig = {
-      system_prompt: hendrixSystemPrompt,
-      initial_message: "Hi, this is Hendrix with Fix My Furnace. How are you today?",
-      model: telnyxAIConfig.model,                    // Qwen/Qwen3-235B-A22B
-      voice: telnyxAIConfig.voice,                    // { provider: "telnyx", model: "NaturalHD", voice: "vespera" }
-      transcription: telnyxAIConfig.transcription,    // { provider: "deepgram", model: "Flux" }
-      language: telnyxAIConfig.language,              // en-US
-      enable_interruptions: telnyxAIConfig.enable_interruptions,
-      voice_activity_detection: telnyxAIConfig.voice_activity_detection,
-      temperature: telnyxAIConfig.temperature,
-      max_tokens: telnyxAIConfig.max_tokens,
-      functions: functionDefinitions
+      assistant: {
+        id: assistantId
+      },
+      voice: "Telnyx.NaturalHD.vespera",
+      greeting: "Hi, this is Hendrix with Fix My Furnace. How are you today?",
+      interruption_settings: {
+        enable: telnyxAIConfig.enable_interruptions
+      },
+      transcription: {
+        model: "deepgram/Flux"
+      }
     };
 
     // SDK doesn't have AI assistant methods, use direct API call with SDK request
     console.log('🔧 Using SDK request method for AI assistant');
+    console.log('🔧 AI Config:', JSON.stringify(aiConfig, null, 2));
     
     aiResponse = await telnyx.request({
       method: 'POST',

@@ -51,17 +51,8 @@ export async function handleCallWebhook(req, res) {
         break;
 
       case 'call.answered':
-        console.log('✅ Call answered, starting AI assistant');
-
-        // Start Hendrix AI assistant
-        if (callControlId) {
-          await answerCallWithAI(callControlId);
-
-          // Update call status
-          if (callId) {
-            callDataOperations.update(callId, { status: 'active' });
-          }
-        }
+        console.log('✅ Call answered - AI assistant already started');
+        // Don't start AI again, it was already started on call.initiated
         break;
 
       case 'call.ai.function_call':
