@@ -37,6 +37,17 @@ export async function handleCallWebhook(req, res) {
             console.log('Call record may already exist');
           }
         }
+
+        // Answer the call and start AI assistant
+        if (callControlId) {
+          console.log('📞 Answering call and starting AI assistant');
+          await answerCallWithAI(callControlId);
+          
+          // Update call status
+          if (callId) {
+            callDataOperations.update(callId, { status: 'active' });
+          }
+        }
         break;
 
       case 'call.answered':
