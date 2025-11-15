@@ -62,15 +62,8 @@ Hangup after a closing statement from caller and it would be appropriate to hang
 export const telnyxAIConfig = {
   model: "Qwen/Qwen3-235B-A22B",
   provider: "telnyx",
-  voice: {
-    provider: "telnyx",
-    model: "NaturalHD",
-    voice: "vespera" // Male voice - verify with Telnyx docs
-  },
-  transcription: {
-    provider: "deepgram",
-    model: "Flux"
-  },
+  voice: "vespera",
+  transcription: "deepgram",
   language: "en-US",
   enable_interruptions: true,
   voice_activity_detection: true,
