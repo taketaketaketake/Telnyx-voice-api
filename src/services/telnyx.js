@@ -28,8 +28,11 @@ export async function answerCallWithAI(callControlId) {
   try {
     console.log('📞 Answering call:', callControlId);
 
-    // Answer the call using SDK
-    await telnyx.calls.answer(callControlId);
+    // Answer the call using SDK request method
+    await telnyx.request({
+      method: 'POST',
+      path: `/calls/${callControlId}/actions/answer`
+    });
 
     console.log('✅ Call answered, starting AI assistant...');
 
@@ -66,17 +69,14 @@ export async function answerCallWithAI(callControlId) {
       functions: functionDefinitions
     };
 
-    try {
-      // Try SDK method first (if available)
-      aiResponse = await telnyx.calls.startAiAssistant(callControlId, aiConfig);
-    } catch (sdkError) {
-      // If SDK method doesn't exist, fall back to direct API call
-      console.log('⚠️  SDK method not available, using direct API call');
-
-      // Use the SDK's internal request method for direct API calls
-      // Endpoint confirmed: ai_assistant_start (not start_ai_assistant)
-      aiResponse = await telnyx._request('POST', `/calls/${callControlId}/actions/ai_assistant_start`, aiConfig);
-    }
+    // SDK doesn't have AI assistant methods, use direct API call with SDK request
+    console.log('🔧 Using SDK request method for AI assistant');
+    
+    aiResponse = await telnyx.request({
+      method: 'POST',
+      path: `/calls/${callControlId}/actions/ai_assistant_start`,
+      data: aiConfig
+    });
 
     console.log('✅ AI assistant started');
     return aiResponse.data || aiResponse;
@@ -100,8 +100,11 @@ export async function hangupCall(callControlId) {
   try {
     console.log('📵 Hanging up call:', callControlId);
 
-    // Use SDK's hangup method
-    await telnyx.calls.hangup(callControlId);
+    // Use SDK request method for hangup
+    await telnyx.request({
+      method: 'POST',
+      path: `/calls/${callControlId}/actions/hangup`
+    });
 
     console.log('✅ Call hung up');
   } catch (error) {
@@ -162,19 +165,15 @@ export async function sendFunctionResult(callControlId, functionCallId, result) 
 
     // Try SDK method if available
     let response;
-    try {
-      response = await telnyx.calls.sendFunctionResult(callControlId, {
+    // Use SDK request method for function result
+    response = await telnyx.request({
+      method: 'POST',
+      path: `/calls/${callControlId}/actions/function_result`,
+      data: {
         function_call_id: functionCallId,
         result: result
-      });
-    } catch (sdkError) {
-      // Fall back to direct API call
-      console.log('⚠️  Using direct API call for function result');
-      response = await telnyx._request('POST', `/calls/${callControlId}/actions/function_result`, {
-        function_call_id: functionCallId,
-        result: result
-      });
-    }
+      }
+    });
 
     console.log('✅ Function result sent');
     return response;
@@ -198,16 +197,37 @@ export async function sendFunctionResult(callControlId, functionCallId, result) 
  */
 export function verifyWebhookSignature(payload, signature, timestamp) {
   try {
-    // The official SDK should have webhook verification
-    // Example (verify actual method name in SDK docs):
-    // const event = telnyx.webhooks.constructEvent(payload, signature, process.env.TELNYX_PUBLIC_KEY);
-    // return true;
-
-    console.log('⚠️  Webhook signature verification not yet implemented');
-    console.log('TODO: Use SDK webhook verification method');
-
-    // For now, return true but log warning
-    // IMPORTANT: Implement proper verification in production!
+    const crypto = require('crypto');
+    
+    // Telnyx webhook signature verification
+    // Documentation: https://developers.telnyx.com/docs/api/webhooks/webhook-signing
+    
+    const publicKey = process.env.TELNYX_PUBLIC_KEY;
+    if (!publicKey) {
+      console.error('❌ TELNYX_PUBLIC_KEY not set in environment');
+      return false;
+    }
+    
+    // Create the signed payload string
+    const signedPayload = `${timestamp}|${payload}`;
+    
+    // Verify the signature using the public key
+    const expectedSignature = crypto
+      .createHmac('sha256', publicKey.replace(/'/g, ''))
+      .update(signedPayload, 'utf8')
+      .digest('base64');
+    
+    const isValid = crypto.timingSafeEqual(
+      Buffer.from(signature, 'base64'),
+      Buffer.from(expectedSignature, 'base64')
+    );
+    
+    if (!isValid) {
+      console.error('❌ Webhook signature verification failed');
+      return false;
+    }
+    
+    console.log('✅ Webhook signature verified');
     return true;
   } catch (error) {
     console.error('❌ Webhook signature verification failed:', error.message);
