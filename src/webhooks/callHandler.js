@@ -79,6 +79,27 @@ export async function handleCallWebhook(req, res) {
         // Update call status
         if (callId) {
           callDataOperations.update(callId, { status: 'completed' });
+          
+          // Fetch transcript after short delay to allow Telnyx to generate it
+          console.log('⏳ Scheduling transcript retrieval for call:', callId);
+          setTimeout(async () => {
+            try {
+              console.log('📜 Fetching transcript for call:', callId);
+              const { getCallTranscript } = await import('../services/telnyx.js');
+              const { transcriptOperations } = await import('../database/db.js');
+              
+              const transcript = await getCallTranscript(callId);
+              
+              if (transcript && transcript.transcript_text) {
+                transcriptOperations.create(callId, transcript.transcript_text);
+                console.log('✅ Transcript saved for call:', callId);
+              } else {
+                console.log('⚠️ No transcript text received for call:', callId);
+              }
+            } catch (error) {
+              console.log('❌ Could not fetch transcript for call:', callId, '-', error.message);
+            }
+          }, 5000); // Wait 5 seconds for transcript to be ready
         }
         break;
 

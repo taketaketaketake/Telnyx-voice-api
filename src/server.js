@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
-import { initDatabase, getDatabase, callDataOperations } from './database/db.js';
+import { initDatabase, getDatabase, callDataOperations, transcriptOperations } from './database/db.js';
 import { handleCallWebhook } from './webhooks/callHandler.js';
 
 // Load environment variables
@@ -29,7 +29,7 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'Telnyx Voice Assistant - Hendrix'
+    service: 'Bags of Laundry - Hendrix'
   });
 });
 
@@ -38,7 +38,7 @@ app.get('/', (req, res) => {
   res.json({
     service: 'Telnyx Voice Assistant',
     agent: 'Hendrix',
-    organization: 'Fix My Furnace',
+    organization: 'Bags of Laundry',
     version: '1.0.0',
     endpoints: {
       health: '/health',
@@ -106,6 +106,54 @@ app.get('/api/calls/:call_id', (req, res) => {
   }
 });
 
+// API endpoint to get call transcript
+app.get('/api/calls/:call_id/transcript', async (req, res) => {
+  try {
+    const callId = req.params.call_id;
+    
+    // First check if transcript exists in database
+    const existingTranscripts = transcriptOperations.getByCallId(callId);
+    
+    if (existingTranscripts && existingTranscripts.length > 0) {
+      return res.json({
+        success: true,
+        source: 'database',
+        data: existingTranscripts[0]
+      });
+    }
+    
+    // If not in database, fetch from Telnyx
+    const { getCallTranscript } = await import('./services/telnyx.js');
+    const transcript = await getCallTranscript(callId);
+    
+    if (transcript && transcript.transcript_text) {
+      // Save to database
+      transcriptOperations.create(callId, transcript.transcript_text);
+      
+      res.json({
+        success: true,
+        source: 'telnyx',
+        data: {
+          call_id: callId,
+          transcript_text: transcript.transcript_text,
+          retrieved_at: new Date().toISOString()
+        }
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        error: 'Transcript not available yet. Please try again in a few minutes.'
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching transcript:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
@@ -121,7 +169,7 @@ app.listen(PORT, () => {
   console.log('');
   console.log('🎙️  ========================================');
   console.log('🎙️  Telnyx Voice Assistant - Hendrix');
-  console.log('🎙️  Fix My Furnace - Michigan');
+  console.log('🎙️  Bags of Laundry - Michigan');
   console.log('🎙️  ========================================');
   console.log('');
   console.log(`✅ Server running on port ${PORT}`);

@@ -135,29 +135,19 @@ export async function hangupCall(callControlId) {
  *
  * @param {string} callId - The call ID or session ID
  * @returns {Promise<Object>} - Transcript data
- *
- * NOTE: Verify the correct SDK method for transcript retrieval.
- * Possible patterns:
- * - telnyx.calls.getTranscript(callId)
- * - telnyx.transcripts.retrieve(callId)
- * - telnyx.ai.transcripts.get(callId)
  */
 export async function getCallTranscript(callId) {
   try {
     console.log('📜 Retrieving transcript for call:', callId);
 
-    // Try SDK method if available
-    let transcript;
-    try {
-      transcript = await telnyx.calls.getTranscript(callId);
-    } catch (sdkError) {
-      // Fall back to direct API call
-      console.log('⚠️  Using direct API call for transcript');
-      transcript = await telnyx._request('GET', `/calls/${callId}/transcript`);
-    }
+    // Use SDK request method for transcript retrieval
+    const response = await telnyx.request({
+      method: 'GET',
+      path: `/calls/${callId}/transcript`
+    });
 
-    console.log('✅ Transcript retrieved');
-    return transcript.data || transcript;
+    console.log('✅ Transcript retrieved successfully');
+    return response.data || response;
   } catch (error) {
     console.error('❌ Error retrieving transcript:', error.response?.data || error.message);
     throw error;

@@ -21,19 +21,18 @@ Perfect for service businesses, sales teams, customer support, appointment sched
 
 ## ⚡ Live Demo Experience
 
-**Meet Hendrix** - Our AI assistant for "Fix My Furnace":
+**Meet Hendrix** - Our AI assistant for "Bags of Laundry":
 
 ```
 📞 Ring ring...
 
-🤖 "Hi, this is Hendrix with Fix My Furnace. How are you today?"
+🤖 "Hi, this is Hendrix with Bags of Laundry. How are you today?"
 
-👤 "Hi, my furnace stopped working this morning."
+👤 "Hi, I need to schedule a laundry pickup."
 
-🤖 "I completely understand — that sounds really uncomfortable. 
-    Let's get this taken care of right away. I'm just going to 
-    gather some basic information before connecting you with 
-    one of our service techs."
+🤖 "Perfect! I'd be happy to help you with that. 
+    Let me just get some basic information for your pickup 
+    and our team will get everything arranged for you."
 
 👤 "Okay, sounds good."
 
@@ -41,39 +40,40 @@ Perfect for service businesses, sales teams, customer support, appointment sched
 
 👤 "Sure, it's Sarah Johnson."
 
-🤖 "Thanks, Sarah. What address should our tech come to?"
+🤖 "Thanks, Sarah. What address should we pick up from?"
 
 👤 "456 Oak Street in Detroit."
 
-🤖 "Perfect. So your furnace stopped working this morning — 
-    can you tell me what exactly is happening?"
+🤖 "Perfect. What type of laundry service do you need? 
+    Are you looking for wash and fold, dry cleaning, or both?"
 
-👤 "It's just not turning on at all. I tried the thermostat 
-    but nothing happens."
+👤 "Just wash and fold would be great. I have about 2 loads 
+    worth of clothes and some bedding."
 
-🤖 "Got it. Do you remember when it was last serviced?"
+🤖 "Got it. Any special instructions for the wash? 
+    Like delicate items or preferred detergent?"
 
-👤 "About a year ago, I think."
+👤 "Just regular wash is fine, nothing special."
 
 🤖 "Perfect, thank you for all that information. I'm sending 
-    this over to scheduling right now. One of our techs will 
-    reach out within a few hours to confirm your appointment. 
-    Thanks for calling Fix My Furnace — we'll take care of you!"
+    this over to our pickup team right now. Someone will 
+    reach out within a few hours to schedule your pickup. 
+    Thanks for calling Bags of Laundry — we'll take great care of your clothes!"
 
 ✅ Data automatically saved:
    - Name: Sarah Johnson
    - Address: 456 Oak Street, Detroit  
-   - Issue: Not turning on, tried thermostat
-   - Last service: ~1 year ago
-   - Status: Ready for scheduling
+   - Service: Wash and fold, 2 loads + bedding
+   - Instructions: Regular wash, nothing special
+   - Status: Ready for pickup scheduling
 ```
 
 ## 🎯 Perfect For
 
 ### Service Businesses
-- HVAC, plumbing, electrical, appliance repair
-- Automatically collect: name, address, problem description, urgency
-- Route to appropriate technician based on issue type
+- Laundry services, HVAC, plumbing, electrical, appliance repair
+- Automatically collect: name, address, service needs, special instructions
+- Route to appropriate team based on service type
 
 ### Sales & Lead Generation  
 - Qualify leads while they're hot
@@ -229,6 +229,81 @@ Choose from multiple AI models and voices:
 - **Languages**: Support for 50+ languages  
 - **Custom training**: Train on your specific use cases
 
+## 🏢 Customize for Your Business
+
+This template is designed to be easily adapted for any service business. Here's exactly what to change:
+
+### **Business Name & Branding**
+
+**1. Telnyx AI Assistant Configuration (Primary)**
+- **Telnyx Portal** → AI Assistants → Your Assistant → Edit
+- Update **system prompt** with your business name, services, and conversation flow
+- Modify **greeting message**: "Hi, this is [Agent Name] with [Your Business]..."
+
+**2. Server Configuration** (`src/server.js`)
+```javascript
+// Lines to update:
+service: 'Your Business - Agent Name'           // Health check response
+organization: 'Your Business Name',             // API response
+console.log('🎙️  Your Business - Location');   // Startup message
+```
+
+**3. Admin Dashboard** (`src/views/admin.html`)
+```html
+<!-- Lines to update: -->
+<title>Your Business - Call Dashboard</title>     <!-- Page title -->
+<h1>🏢 Your Business Name</h1>                   <!-- Header -->
+```
+
+**4. Documentation** (`README.md`)
+- Update the demo conversation example (line ~24)
+- Replace business context in examples section (line ~288)
+- Modify use case descriptions as needed
+
+### **Data Collection Fields**
+
+**Database Schema** (`src/database/schema.sql`)
+```sql
+-- Consider renaming columns for your business:
+issue_description → service_request, order_details, etc.
+additional_notes → special_instructions, preferences, etc.
+```
+
+**Function Definition** (`src/config/hendrix.js`)
+```javascript
+// Update parameter descriptions in save_call_data function:
+issue_description: "Your service request description"
+additional_notes: "Special instructions for your service"
+```
+
+### **Industry-Specific Examples**
+
+| Business Type | Greeting | Data to Collect | Example Integration |
+|---------------|----------|----------------|-------------------|
+| **Laundry Service** | "Hi, this is [Name] with [Business]" | Pickup address, service type, instructions | Scheduling system |
+| **HVAC/Repair** | "Hi, this is [Name] with [Business]" | Service address, issue, last service | ServiceTitan |
+| **Medical Practice** | "Hi, this is [Name] with [Business]" | Symptoms, insurance, appointment preference | Epic EHR |
+| **Real Estate** | "Hi, this is [Name] with [Business]" | Property interest, budget, timeline | MLS integration |
+| **Restaurant** | "Hi, this is [Name] with [Business]" | Order details, delivery address, preferences | POS system |
+
+### **Quick Customization Checklist**
+
+- [ ] Update Telnyx AI Assistant system prompt and greeting
+- [ ] Change business name in `src/server.js` (3 locations)
+- [ ] Update admin dashboard title and header
+- [ ] Modify README demo conversation for your industry
+- [ ] Adjust data collection fields if needed
+- [ ] Test with real phone call
+- [ ] Update environment variables (phone number, webhook URL)
+
+### **Advanced Customization**
+
+For deeper customization:
+- **Voice & Personality**: Modify `src/config/hendrix.js` system prompt
+- **Database Fields**: Add columns in `src/database/schema.sql`
+- **API Integration**: Add webhook endpoints for your CRM/scheduling system
+- **Conversation Flow**: Adjust function calling logic in AI prompt
+
 ## 📈 Scaling & Production
 
 ### Performance Stats
@@ -285,10 +360,10 @@ Need more? Easy extensions:
 
 ## 🎨 Real-World Examples
 
-### HVAC Company (Current Implementation)
+### Laundry Service (Current Implementation)
 ```javascript
-// Collects: name, address, issue, last service date
-// Integrates with: ServiceTitan scheduling system  
+// Collects: name, pickup address, service type, special instructions
+// Integrates with: Pickup scheduling system  
 // Result: 40% faster call handling, 95% data accuracy
 ```
 
