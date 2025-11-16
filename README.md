@@ -14,10 +14,32 @@ A complete voice AI assistant built on Telnyx's ultra-low latency platform. This
 - **💬 Conduct human-like conversations** that adapt to caller emotions
 - **📋 Collect customer information** (name, address, service needs) 
 - **💾 Save everything to database** automatically
-- **📊 View call data** in a beautiful web dashboard
-- **🔄 Integrate with CRM** via REST API
+- **📜 Capture full call transcripts** for quality and training
+- **📊 Monitor everything** in a beautiful real-time dashboard
+- **🔄 Integrate with any CRM** via comprehensive REST API
+- **🎛️ Easy customization** for any business in minutes
 
 Perfect for service businesses, sales teams, customer support, appointment scheduling, lead qualification, and more.
+
+## ✨ Key Features
+
+### 🎯 **Complete Call Management**
+- **Instant AI answering** - No more missed calls or hold times
+- **Intelligent conversation** - Adapts to customer emotions and needs
+- **Automatic data extraction** - Name, address, requirements captured perfectly
+- **Full transcript capture** - Every word saved for quality and compliance
+
+### 🏢 **Business Ready**
+- **Template-based setup** - Rebrand for any industry in 5 minutes
+- **Production dashboard** - Monitor calls, view transcripts, track performance
+- **CRM integration** - REST API connects to any business system
+- **Scalable architecture** - Handles 1000+ concurrent calls
+
+### 🔧 **Developer Friendly**
+- **Open source** - MIT license, completely customizable
+- **Modern stack** - Node.js, Express, SQLite, official Telnyx SDK
+- **Comprehensive docs** - Step-by-step guides for every use case
+- **Community driven** - Built for developers, by developers
 
 ## ⚡ Live Demo Experience
 
@@ -97,18 +119,23 @@ Perfect for service businesses, sales teams, customer support, appointment sched
 - **Natural HD voice** (vespera) - sounds completely human
 - **Advanced transcription** with Deepgram Flux model
 - **Function calling** - AI can execute real business logic
+- **Automatic transcript capture** - every conversation saved
+- **Smart conversation flow** - adapts to caller needs
 
 ### Production Architecture
 - **SQLite database** with automatic indexing (scales to 100k+ calls)
 - **REST API** for CRM integration and data export  
 - **Webhook-driven** event handling (call events, AI function calls)
-- **Real-time dashboard** for monitoring calls and data collection
+- **Real-time dashboard** with transcript viewing and filtering
+- **Automatic data collection** - no manual entry required
+- **Template-based customization** - rebrand in minutes
 
 ### Battle-Tested Components
 - **Express.js** server with comprehensive error handling
 - **Better-sqlite3** for high-performance local database
 - **Official Telnyx SDK** with TypeScript support
 - **Comprehensive logging** and debugging tools
+- **Production-ready deployment** guides for all major platforms
 
 ## 🚀 Quick Start (5 Minutes)
 
@@ -163,8 +190,17 @@ ngrok http 3000
 - 📈 **Live stats**: Total calls, completions, data collection rate
 - 🗂️ **Call history**: Searchable table with all customer data  
 - 🔍 **Smart filtering**: By status, phone number, date range
+- 📜 **Full transcripts**: Click to view complete conversations
 - 📱 **Mobile responsive**: Works perfectly on phones/tablets
 - 🔄 **Auto-refresh**: Updates every 30 seconds
+- 💾 **Export ready**: All data accessible via API
+
+**New Transcript Features:**
+- **Automatic capture**: Every call conversation saved
+- **One-click viewing**: Modal popup with full transcript
+- **Search & filter**: Find calls by content or customer
+- **Quality assurance**: Review AI performance and customer satisfaction
+- **Training data**: Use real conversations to improve your assistant
 
 Access at: `https://your-domain.com/admin`
 
@@ -183,6 +219,11 @@ curl https://your-domain.com/api/calls?status=collected&limit=50
 ### Get Specific Call
 ```bash
 curl https://your-domain.com/api/calls/abc123
+```
+
+### Get Call Transcript
+```bash
+curl https://your-domain.com/api/calls/abc123/transcript
 ```
 
 ### Response Format
@@ -303,6 +344,8 @@ For deeper customization:
 - **Database Fields**: Add columns in `src/database/schema.sql`
 - **API Integration**: Add webhook endpoints for your CRM/scheduling system
 - **Conversation Flow**: Adjust function calling logic in AI prompt
+- **Transcript Analysis**: Build custom analytics on conversation data
+- **Multi-language**: Configure for different languages and regions
 
 ## 📈 Scaling & Production
 
@@ -324,11 +367,13 @@ For deeper customization:
 ### Enterprise Features  
 Need more? Easy extensions:
 - **CRM Integration**: Salesforce, HubSpot, Pipedrive
-- **Advanced Analytics**: Call sentiment, duration analysis
+- **Advanced Analytics**: Call sentiment, duration analysis, transcript search
 - **A/B Testing**: Multiple AI personalities and scripts
 - **Multi-language**: Automatic language detection
 - **Call Recording**: Full conversation storage and playback
 - **Live Monitoring**: Real-time call supervision
+- **Transcript Intelligence**: AI-powered insights from conversation data
+- **Custom Workflows**: Automated actions based on call outcomes
 
 ## 🔧 Architecture Deep Dive
 
