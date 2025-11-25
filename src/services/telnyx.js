@@ -256,7 +256,7 @@ export async function sendSMS(to, text, from = null) {
     console.log(`📱 Sending SMS to ${to} from ${fromNumber}`);
     console.log(`📄 Message: ${text}`);
 
-    const message = await telnyx.messages.create({
+    const message = await telnyx.messages.send({
       from: fromNumber,
       to: to,
       text: text
