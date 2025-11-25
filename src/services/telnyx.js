@@ -57,6 +57,11 @@ export async function answerCallWithAI(callControlId) {
 
     const assistantId = process.env.TELNYX_ASSISTANT_ID;
     console.log('🔧 Assistant ID from env:', assistantId);
+    console.log('🔧 Full env check:', {
+      hasAssistantId: !!assistantId,
+      assistantIdLength: assistantId?.length,
+      startsWithAssistant: assistantId?.startsWith('assistant-')
+    });
 
     // Test if assistant exists first
     try {
