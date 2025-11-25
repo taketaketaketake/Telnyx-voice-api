@@ -24,14 +24,19 @@ export async function handleSMSWebhook(req, res) {
       const message = payload.data.payload;
       const fromNumber = message.from?.phone_number;
       const messageText = message.text;
-      const messagingProfileId = message.messaging_profile_id;
 
       console.log(`📨 Received SMS from ${fromNumber}: "${messageText}"`);
 
-      // Send simple auto-reply using the same messaging profile
+      // Send simple auto-reply.
+      // NOTE: We are not using the messaging_profile_id from the inbound message
+      // because the current Telnyx configuration does not have a usable number
+      // in the number pool for that profile. Instead, we are falling back to the
+      // default TELNYX_PHONE_NUMBER from the environment variables.
+      // This is a temporary workaround. For a permanent fix, configure the
+      // messaging profile in the Telnyx portal.
       const replyText = "Thanks for your message! Someone from Bags of Laundry will get back to you soon.";
       
-      await sendSMS(fromNumber, replyText, { messaging_profile_id: messagingProfileId });
+      await sendSMS(fromNumber, replyText);
       
       console.log(`✅ Auto-reply sent to ${fromNumber}`);
     }
