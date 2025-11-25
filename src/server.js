@@ -56,6 +56,7 @@ app.get('/admin', (req, res) => {
 
 // Telnyx webhook endpoints
 app.post('/webhooks/telnyx', handleCallWebhook);
+app.get('/webhooks/telnyx', (req, res) => res.json({ status: 'webhook endpoint ready' }));
 app.post('/webhooks/sms', handleSMSWebhook);
 
 // API endpoint to get all calls
