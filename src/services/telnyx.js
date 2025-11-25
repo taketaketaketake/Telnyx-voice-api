@@ -247,20 +247,28 @@ export function verifyWebhookSignature(payload, signature, timestamp) {
  * 
  * @param {string} to - Recipient phone number
  * @param {string} text - Message text
- * @param {string} from - Sender phone number (optional, defaults to env var)
+ * @param {Object} options - Options object with from or messaging_profile_id
  */
-export async function sendSMS(to, text, from = null) {
+export async function sendSMS(to, text, options = {}) {
   try {
-    const fromNumber = from || process.env.TELNYX_PHONE_NUMBER;
-    
-    console.log(`📱 Sending SMS to ${to} from ${fromNumber}`);
-    console.log(`📄 Message: ${text}`);
-
-    const message = await telnyx.messages.send({
-      from: fromNumber,
+    const payload = {
       to: to,
       text: text
-    });
+    };
+
+    // Use messaging_profile_id if provided, otherwise use from number
+    if (options.messaging_profile_id) {
+      payload.messaging_profile_id = options.messaging_profile_id;
+      console.log(`📱 Sending SMS to ${to} via messaging profile ${options.messaging_profile_id}`);
+    } else {
+      const fromNumber = options.from || process.env.TELNYX_PHONE_NUMBER;
+      payload.from = fromNumber;
+      console.log(`📱 Sending SMS to ${to} from ${fromNumber}`);
+    }
+    
+    console.log(`📄 Message: ${text}`);
+
+    const message = await telnyx.messages.send(payload);
 
     console.log(`✅ SMS sent successfully, ID: ${message.id}`);
     return message;

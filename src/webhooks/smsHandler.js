@@ -24,13 +24,14 @@ export async function handleSMSWebhook(req, res) {
       const message = payload.data.payload;
       const fromNumber = message.from?.phone_number;
       const messageText = message.text;
+      const messagingProfileId = message.messaging_profile_id;
 
       console.log(`📨 Received SMS from ${fromNumber}: "${messageText}"`);
 
-      // Send simple auto-reply
+      // Send simple auto-reply using the same messaging profile
       const replyText = "Thanks for your message! Someone from Bags of Laundry will get back to you soon.";
       
-      await sendSMS(fromNumber, replyText);
+      await sendSMS(fromNumber, replyText, { messaging_profile_id: messagingProfileId });
       
       console.log(`✅ Auto-reply sent to ${fromNumber}`);
     }
