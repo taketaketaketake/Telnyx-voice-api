@@ -179,10 +179,135 @@ export const transcriptOperations = {
   }
 };
 
+// Database operations for SMS messages
+export const smsOperations = {
+  /**
+   * Create a new SMS message record
+   */
+  createMessage(data) {
+    const db = getDatabase();
+    const stmt = db.prepare(`
+      INSERT INTO sms_messages
+        (message_id, phone_number, direction, message_text, conversation_id, status)
+      VALUES
+        (@message_id, @phone_number, @direction, @message_text, @conversation_id, @status)
+    `);
+
+    const result = stmt.run({
+      message_id: data.message_id,
+      phone_number: data.phone_number,
+      direction: data.direction,
+      message_text: data.message_text,
+      conversation_id: data.conversation_id || null,
+      status: data.status || 'received'
+    });
+
+    return result.lastInsertRowid;
+  },
+
+  /**
+   * Update SMS message status
+   */
+  updateMessageStatus(message_id, status, response_message_id = null) {
+    const db = getDatabase();
+    const stmt = db.prepare(`
+      UPDATE sms_messages
+      SET status = ?, processed_at = CURRENT_TIMESTAMP, response_message_id = ?
+      WHERE message_id = ?
+    `);
+
+    const result = stmt.run(status, response_message_id, message_id);
+    return result.changes > 0;
+  },
+
+  /**
+   * Get messages by conversation ID
+   */
+  getMessagesByConversation(conversation_id) {
+    const db = getDatabase();
+    const stmt = db.prepare('SELECT * FROM sms_messages WHERE conversation_id = ? ORDER BY created_at ASC');
+    return stmt.all(conversation_id);
+  },
+
+  /**
+   * Get messages by phone number
+   */
+  getMessagesByPhone(phone_number, limit = 50) {
+    const db = getDatabase();
+    const stmt = db.prepare('SELECT * FROM sms_messages WHERE phone_number = ? ORDER BY created_at DESC LIMIT ?');
+    return stmt.all(phone_number, limit);
+  },
+
+  /**
+   * Get all unprocessed messages
+   */
+  getUnprocessedMessages() {
+    const db = getDatabase();
+    const stmt = db.prepare("SELECT * FROM sms_messages WHERE direction = 'inbound' AND status = 'received' ORDER BY created_at ASC");
+    return stmt.all();
+  }
+};
+
+// Database operations for SMS conversations
+export const smsConversationOperations = {
+  /**
+   * Create or get existing conversation
+   */
+  createOrGetConversation(phone_number) {
+    const db = getDatabase();
+    
+    // First try to get active conversation
+    const getStmt = db.prepare("SELECT * FROM sms_conversations WHERE phone_number = ? AND status = 'active' ORDER BY last_activity DESC LIMIT 1");
+    let conversation = getStmt.get(phone_number);
+    
+    if (!conversation) {
+      // Create new conversation
+      const conversation_id = `sms_${phone_number.replace('+', '')}_${Date.now()}`;
+      const createStmt = db.prepare(`
+        INSERT INTO sms_conversations (conversation_id, phone_number, status)
+        VALUES (?, ?, 'active')
+      `);
+      
+      createStmt.run(conversation_id, phone_number);
+      conversation = getStmt.get(phone_number);
+    }
+    
+    return conversation;
+  },
+
+  /**
+   * Update conversation activity
+   */
+  updateLastActivity(conversation_id, customer_name = null, summary = null) {
+    const db = getDatabase();
+    const stmt = db.prepare(`
+      UPDATE sms_conversations
+      SET last_activity = CURRENT_TIMESTAMP,
+          customer_name = COALESCE(?, customer_name),
+          conversation_summary = COALESCE(?, conversation_summary)
+      WHERE conversation_id = ?
+    `);
+
+    const result = stmt.run(customer_name, summary, conversation_id);
+    return result.changes > 0;
+  },
+
+  /**
+   * Get all active conversations
+   */
+  getActiveConversations() {
+    const db = getDatabase();
+    const stmt = db.prepare("SELECT * FROM sms_conversations WHERE status = 'active' ORDER BY last_activity DESC");
+    return stmt.all();
+  }
+};
+
 export default {
   getDatabase,
   initDatabase,
   closeDatabase,
   callDataOperations,
-  transcriptOperations
+  transcriptOperations,
+  smsOperations,
+  smsConversationOperations
 };

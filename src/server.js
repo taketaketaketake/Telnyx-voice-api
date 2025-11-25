@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { initDatabase, getDatabase, callDataOperations, transcriptOperations } from './database/db.js';
 import { handleCallWebhook } from './webhooks/callHandler.js';
+import { handleSMSWebhook } from './webhooks/smsHandler.js';
 
 // Load environment variables
 dotenv.config();
@@ -53,8 +54,9 @@ app.get('/admin', (req, res) => {
   res.sendFile(new URL('../src/views/admin.html', import.meta.url).pathname);
 });
 
-// Telnyx webhook endpoint
+// Telnyx webhook endpoints
 app.post('/webhooks/telnyx', handleCallWebhook);
+app.post('/webhooks/sms', handleSMSWebhook);
 
 // API endpoint to get all calls
 app.get('/api/calls', (req, res) => {

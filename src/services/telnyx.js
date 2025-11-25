@@ -242,12 +242,42 @@ export function verifyWebhookSignature(payload, signature, timestamp) {
   }
 }
 
+/**
+ * Send SMS message
+ * 
+ * @param {string} to - Recipient phone number
+ * @param {string} text - Message text
+ * @param {string} from - Sender phone number (optional, defaults to env var)
+ */
+export async function sendSMS(to, text, from = null) {
+  try {
+    const fromNumber = from || process.env.TELNYX_PHONE_NUMBER;
+    
+    console.log(`📱 Sending SMS to ${to} from ${fromNumber}`);
+    console.log(`📄 Message: ${text}`);
+
+    const message = await telnyx.messages.create({
+      from: fromNumber,
+      to: to,
+      text: text
+    });
+
+    console.log(`✅ SMS sent successfully, ID: ${message.id}`);
+    return message;
+
+  } catch (error) {
+    console.error('❌ Error sending SMS:', error.response?.data || error.message);
+    throw error;
+  }
+}
+
 export default {
   answerCallWithAI,
   hangupCall,
   getCallTranscript,
   sendFunctionResult,
   verifyWebhookSignature,
+  sendSMS,
   // Export the client for advanced usage
   client: telnyx
 };
