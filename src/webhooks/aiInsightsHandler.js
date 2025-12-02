@@ -17,6 +17,10 @@ export async function handleAIInsightsWebhook(req, res) {
     const results = payload.results || [];
     const timestamp = event.occurred_at || new Date().toISOString();
     
+    // Check if this is SMS conversation insights (has conversation channel but no call_id)
+    const conversationChannel = metadata.telnyx_conversation_channel;
+    const isSmsConversation = conversationChannel === 'sms_chat' && !callId;
+    
     // Parse the results to extract customer data
     let insights = {};
     let customerName = null;
@@ -41,75 +45,94 @@ export async function handleAIInsightsWebhook(req, res) {
     });
     
     // Log the insights for debugging
-    console.log('📊 Call Insights:', {
+    console.log('📊 AI Insights:', {
       callId,
       conversationId,
       customerName,
       insights,
       timestamp,
-      resultsCount: results.length
+      resultsCount: results.length,
+      isSmsConversation,
+      conversationChannel
     });
     
-    // Store insights in database
-    if (callId && Object.keys(insights).length > 0) {
+    // Store insights in database (use conversation_id for SMS, call_id for voice calls)
+    const storageId = callId || conversationId;
+    if (storageId && Object.keys(insights).length > 0) {
       try {
         // Store customer name if extracted
         if (insights.customer_name) {
           console.log('👤 Customer Name Extracted:', insights.customer_name);
-          aiInsightsOperations.create(callId, 'customer_name', {
+          aiInsightsOperations.create(storageId, 'customer_name', {
             customer_name: insights.customer_name,
-            extracted_at: timestamp
+            extracted_at: timestamp,
+            source: isSmsConversation ? 'sms_conversation' : 'voice_call',
+            conversation_id: conversationId
           });
         }
         
         // Store sentiment if available
         if (insights.sentiment) {
-          console.log('😊 Call Sentiment:', insights.sentiment);
-          aiInsightsOperations.create(callId, 'sentiment', {
+          console.log('😊 Sentiment:', insights.sentiment);
+          aiInsightsOperations.create(storageId, 'sentiment', {
             sentiment: insights.sentiment,
-            extracted_at: timestamp
+            extracted_at: timestamp,
+            source: isSmsConversation ? 'sms_conversation' : 'voice_call',
+            conversation_id: conversationId
           });
         }
         
         // Store keywords if available
         if (insights.keywords) {
           console.log('🔍 Keywords:', insights.keywords);
-          aiInsightsOperations.create(callId, 'keywords', {
+          aiInsightsOperations.create(storageId, 'keywords', {
             keywords: insights.keywords,
-            extracted_at: timestamp
+            extracted_at: timestamp,
+            source: isSmsConversation ? 'sms_conversation' : 'voice_call',
+            conversation_id: conversationId
           });
         }
         
         // Store summary if available
-        if (summary) {
-          console.log('📝 Call Summary:', summary);
-          aiInsightsOperations.create(callId, 'summary', {
-            summary: summary,
-            extracted_at: timestamp
+        if (insights.summary) {
+          console.log('📝 Summary:', insights.summary);
+          aiInsightsOperations.create(storageId, 'summary', {
+            summary: insights.summary,
+            extracted_at: timestamp,
+            source: isSmsConversation ? 'sms_conversation' : 'voice_call',
+            conversation_id: conversationId
           });
         }
         
         // Store raw insights data
-        aiInsightsOperations.create(callId, 'raw', {
+        aiInsightsOperations.create(storageId, 'raw', {
           raw_data: event,
-          extracted_at: timestamp
+          extracted_at: timestamp,
+          source: isSmsConversation ? 'sms_conversation' : 'voice_call',
+          conversation_id: conversationId
         });
         
-        console.log('✅ AI insights stored successfully for call:', callId);
+        const sourceType = isSmsConversation ? 'SMS conversation' : 'voice call';
+        console.log(`✅ AI insights stored successfully for ${sourceType}:`, storageId);
       } catch (dbError) {
         console.error('❌ Error storing AI insights:', dbError);
         console.error('Database error details:', {
           message: dbError.message,
           stack: dbError.stack,
+          storageId,
           callId,
+          conversationId,
           insights
         });
       }
     } else {
-      console.log('⚠️ No call ID or insights found, skipping database storage:', {
+      console.log('⚠️ No storage ID or insights found, skipping database storage:', {
         hasCallId: !!callId,
+        hasConversationId: !!conversationId,
+        hasStorageId: !!storageId,
         hasInsights: Object.keys(insights).length > 0,
         callId,
+        conversationId,
         insights
       });
     }
@@ -120,8 +143,10 @@ export async function handleAIInsightsWebhook(req, res) {
       message: 'AI insights processed successfully',
       callId: callId,
       conversationId: conversationId,
+      storageId: storageId,
       extractedInsights: Object.keys(insights).length,
-      customerName: customerName
+      customerName: customerName,
+      source: isSmsConversation ? 'sms_conversation' : 'voice_call'
     });
 
   } catch (error) {
