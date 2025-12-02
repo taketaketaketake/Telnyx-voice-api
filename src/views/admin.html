@@ -595,7 +595,7 @@
             } catch (error) {
                 console.error('Error loading calls:', error);
                 document.getElementById('callsBody').innerHTML = 
-                    '<tr><td colspan="7" style="text-align: center; color: #ff3b30;">Error loading calls</td></tr>';
+                    '<tr><td colspan="8" style="text-align: center; color: #ff3b30;">Error loading calls</td></tr>';
             }
             
             loading.style.display = 'none';
@@ -622,8 +622,11 @@
             
             if (calls.length === 0) {
                 empty.style.display = 'block';
+                table.style.display = 'none';
                 return;
             }
+            
+            empty.style.display = 'none';
             
             tbody.innerHTML = calls.map(call => {
                 let formattedDate = '-';
