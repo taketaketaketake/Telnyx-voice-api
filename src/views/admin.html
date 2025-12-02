@@ -546,8 +546,23 @@
             }
             
             tbody.innerHTML = calls.map(call => {
-                const createdAt = new Date(call.created_at);
-                const formattedDate = createdAt.toLocaleDateString() + ' ' + createdAt.toLocaleTimeString();
+                let formattedDate = '-';
+                try {
+                    const createdAt = new Date(call.created_at);
+                    if (!isNaN(createdAt.getTime())) {
+                        formattedDate = createdAt.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                        }) + ' ' + createdAt.toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                    }
+                } catch (e) {
+                    console.error('Date formatting error:', e);
+                    formattedDate = call.created_at || '-';
+                }
                 
                 return `
                     <tr>
@@ -693,15 +708,58 @@
             
             try {
                 const response = await fetch(`/api/calls/${callId}/transcript`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const data = await response.json();
                 
-                if (data.success && data.data.transcript_text) {
+                if (data.success && data.data && data.data.transcript_text) {
                     content.textContent = data.data.transcript_text;
+                } else if (data.error) {
+                    // Handle specific error messages
+                    if (data.error.includes('404') || data.error.includes('not found')) {
+                        content.innerHTML = `
+                            <div style="color: #86868b; text-align: center; padding: 20px;">
+                                <p>📝 Transcript not available yet</p>
+                                <p style="font-size: 14px; margin-top: 10px;">
+                                    Transcripts are generated after the call ends and may take a few minutes to appear.
+                                </p>
+                                <button onclick="viewTranscript('${callId}')" style="margin-top: 15px; padding: 8px 16px; background: #007aff; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                    Retry
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        content.innerHTML = `
+                            <div style="color: #ff3b30; text-align: center; padding: 20px;">
+                                <p>⚠️ Error loading transcript</p>
+                                <p style="font-size: 14px; margin-top: 10px;">${data.error}</p>
+                            </div>
+                        `;
+                    }
                 } else {
-                    content.textContent = data.error || 'Transcript not available yet. Please try again in a few minutes.';
+                    content.innerHTML = `
+                        <div style="color: #86868b; text-align: center; padding: 20px;">
+                            <p>📝 No transcript available</p>
+                            <p style="font-size: 14px; margin-top: 10px;">
+                                This call may not have a transcript yet, or transcription may be disabled.
+                            </p>
+                        </div>
+                    `;
                 }
             } catch (error) {
-                content.textContent = 'Error loading transcript: ' + error.message;
+                console.error('Transcript error:', error);
+                content.innerHTML = `
+                    <div style="color: #ff3b30; text-align: center; padding: 20px;">
+                        <p>⚠️ Error loading transcript</p>
+                        <p style="font-size: 14px; margin-top: 10px;">${error.message}</p>
+                        <button onclick="viewTranscript('${callId}')" style="margin-top: 15px; padding: 8px 16px; background: #007aff; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            Retry
+                        </button>
+                    </div>
+                `;
             }
         }
 
