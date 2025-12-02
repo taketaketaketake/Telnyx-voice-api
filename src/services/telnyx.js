@@ -81,7 +81,7 @@ export async function answerCallWithAI(callControlId) {
         id: assistantId
       },
       voice: "Telnyx.NaturalHD.vespera",
-      greeting: "Hi, this is Hendrix with Bags of Laundry. How are you today?",
+      greeting: "Hi, this is Hendrix with Fix My Furnace. How are you today?",
       interruption_settings: {
         enable: telnyxAIConfig.enable_interruptions
       },

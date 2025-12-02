@@ -31,16 +31,16 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'Bags of Laundry - Hendrix'
+    service: 'Fix My Furnace - Hendrix'
   });
 });
 
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
-    service: 'Telnyx Voice Assistant',
+    service: 'Fix My Furnace Voice Assistant',
     agent: 'Hendrix',
-    organization: 'Bags of Laundry',
+    organization: 'Fix My Furnace',
     version: '1.0.0',
     endpoints: {
       health: '/health',
@@ -239,10 +239,10 @@ app.use((err, req, res, next) => {
 // Start server
 app.listen(PORT, () => {
   console.log('');
-  console.log('🎙️  ========================================');
-  console.log('🎙️  Telnyx Voice Assistant - Hendrix');
-  console.log('🎙️  Bags of Laundry - Michigan');
-  console.log('🎙️  ========================================');
+  console.log('🔧  ========================================');
+  console.log('🔧  Fix My Furnace Voice Assistant - Hendrix');
+  console.log('🔧  HVAC Service - Michigan');
+  console.log('🔧  ========================================');
   console.log('');
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`📍 Webhook URL: ${process.env.WEBHOOK_URL || `http://localhost:${PORT}/webhooks/telnyx`}`);

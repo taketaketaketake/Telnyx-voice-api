@@ -52,7 +52,7 @@ async function generateAIResponse(messageText, phoneNumber) {
     // Greeting or general inquiry
     if (lowerMessage.includes('hi') || lowerMessage.includes('hello') || lowerMessage.includes('hey') ||
         lowerMessage.includes('info') || lowerMessage.length < 10) {
-      return "Hi! Welcome to Bags of Laundry 👋 We provide convenient pickup & delivery laundry service in Michigan. How can we help you today? Call (855) 927-4224 for instant service!";
+      return "Hi! Welcome to Fix My Furnace 🔧 We provide professional HVAC repair and maintenance service in Michigan. How can we help you today? Call (855) 927-4224 for instant service!";
     }
     
     // Emergency/urgent requests
@@ -71,11 +71,11 @@ async function generateAIResponse(messageText, phoneNumber) {
     
     // Stop/unsubscribe
     if (lowerMessage.includes('stop') || lowerMessage.includes('unsubscribe')) {
-      return "You've been unsubscribed from Bags of Laundry messages. To resubscribe or schedule service, call (855) 927-4224. Thanks!";
+      return "You've been unsubscribed from Fix My Furnace messages. To resubscribe or schedule service, call (855) 927-4224. Thanks!";
     }
     
     // Default intelligent response for unrecognized messages
-    return "Thanks for reaching out to Bags of Laundry! For the quickest help with scheduling, pricing, or questions, call (855) 927-4224 to chat with Hendrix, our AI assistant. He's available 24/7!";
+    return "Thanks for reaching out to Fix My Furnace! For the quickest help with HVAC service, repairs, or questions, call (855) 927-4224 to chat with Hendrix, our AI assistant. He's available 24/7!";
     
   } catch (error) {
     console.error('Error generating AI response:', error);

@@ -43,12 +43,12 @@ Perfect for service businesses, sales teams, customer support, appointment sched
 
 ## ⚡ Live Demo Experience
 
-**Meet Hendrix** - Our AI assistant for "Bags of Laundry":
+**Meet Hendrix** - Our AI assistant for "Fix My Furnace":
 
 ```
 📞 Ring ring...
 
-🤖 "Hi, this is Hendrix with Bags of Laundry. How are you today?"
+🤖 "Hi, this is Hendrix with Fix My Furnace. How are you today?"
 
 👤 "Hi, I need to schedule a laundry pickup."
 
@@ -80,7 +80,7 @@ Perfect for service businesses, sales teams, customer support, appointment sched
 🤖 "Perfect, thank you for all that information. I'm sending 
     this over to our pickup team right now. Someone will 
     reach out within a few hours to schedule your pickup. 
-    Thanks for calling Bags of Laundry — we'll take great care of your clothes!"
+    Thanks for calling Fix My Furnace — we'll take great care of you!"
 
 ✅ Data automatically saved:
    - Name: Sarah Johnson
@@ -352,7 +352,7 @@ For deeper customization:
 For detailed agent instructions, conversation flows, and customization options, see **[agentdetails.md](agentdetails.md)**.
 
 **Quick Reference:**
-- **Current Agent**: Hendrix (Bags of Laundry service)
+- **Current Agent**: Hendrix (Fix My Furnace HVAC service)
 - **Configuration**: Copy instructions from agentdetails.md to Telnyx portal
 - **Customization**: Modify for your business needs using the examples provided
 
