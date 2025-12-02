@@ -347,6 +347,155 @@ For deeper customization:
 - **Transcript Analysis**: Build custom analytics on conversation data
 - **Multi-language**: Configure for different languages and regions
 
+## 🤖 AI Agent Instructions & Configuration
+
+### Current Agent: Hendrix - Bags of Laundry
+
+Your AI assistant is currently configured as **Hendrix** for **Bags of Laundry** service in Michigan. Here's how the agent is designed to interact with customers:
+
+#### 🎯 **Agent Persona**
+- **Name**: Hendrix
+- **Business**: Bags of Laundry  
+- **Location**: Michigan, USA
+- **Voice**: Warm, friendly, conversational (Detroit-local friendliness)
+- **Purpose**: Collect customer laundry pickup requests and schedule service
+
+#### 📞 **Call Flow & Instructions**
+
+**1. Greeting (Natural & Warm)**
+```
+"Hi, this is Hendrix with Bags of Laundry. How are you today?"
+```
+
+**2. Service Inquiry**
+- Listen to customer's laundry needs
+- Ask: "What can we help you with today?"
+- Common requests: laundry pickup, dry cleaning, special items
+
+**3. Information Collection (One question at a time)**
+```
+Required Information:
+✅ Customer name: "Can I get your name, please?"
+✅ Pickup address: "And what address should we come to?"  
+✅ Service details: "What type of laundry service do you need?"
+✅ Special instructions: "Any special care instructions or items?"
+```
+
+**4. Data Processing**
+Once all required info is collected, Hendrix automatically:
+- Calls `save_call_data` function to store customer information
+- Confirms details with customer
+- Explains next steps
+
+**5. Professional Closing**
+```
+"Perfect! I've got all your information. We'll reach out shortly to 
+confirm your pickup time. Thanks for choosing Bags of Laundry!"
+```
+
+#### 🎭 **Conversation Adaptability**
+
+**Frustrated Customer:**
+- "I completely understand - that sounds really inconvenient. Let's get this taken care of right away."
+- Be empathetic and reassuring
+
+**Busy Customer:**  
+- "No problem, I'll make this quick. Just need your name and address."
+- Be efficient and direct
+
+**Elderly Customer:**
+- "No rush at all, take your time."
+- Be patient and gentle
+
+**New Customer:**
+- Explain services briefly: "We handle all types of laundry - regular wash, dry cleaning, delicates."
+
+#### ⚙️ **Technical Configuration**
+
+**Current Settings:**
+- **Model**: Qwen/Qwen3-235B-A22B (High-quality conversational AI)
+- **Voice**: NaturalHD/eliphas (Natural, professional male voice)
+- **Transcription**: deepgram/Flux (High-accuracy speech-to-text)
+- **Interruptions**: Enabled (customers can interrupt naturally)
+- **Language**: English (US)
+
+**Function Integration:**
+- **save_call_data**: Automatically triggered when customer info is complete
+- **Parameters**: phone_number, customer_name, address, service_type, special_instructions
+
+#### 📝 **Customizing Your Agent**
+
+**To modify the agent for your business:**
+
+1. **Update Agent in Telnyx Portal:**
+   - Go to AI Assistants → Select your assistant
+   - Modify system prompt with your business details
+   - Change greeting message
+   - Update conversation flow
+
+2. **Update Code Configuration:**
+   ```javascript
+   // In src/services/telnyx.js
+   greeting: "Hi, this is [Your Agent] with [Your Business]..."
+   ```
+
+3. **Modify Data Collection:**
+   ```javascript
+   // In src/functions/saveCallData.js  
+   // Update fields for your business needs
+   ```
+
+**Example Business Adaptations:**
+
+**Medical Practice:**
+```
+- Agent: "Sarah"
+- Greeting: "Hi, this is Sarah with Downtown Medical. How can I help you?"
+- Collects: symptoms, insurance, preferred appointment times
+```
+
+**Real Estate:**
+```  
+- Agent: "Mike"
+- Greeting: "Hi, this is Mike with Premier Realty. How are you today?"
+- Collects: property interest, budget, contact timeline
+```
+
+**HVAC Service:**
+```
+- Agent: "Tom" 
+- Greeting: "Hi, this is Tom with Fix My Furnace. What can we help you with?"
+- Collects: system type, issue description, urgency level
+```
+
+#### 🔧 **Best Practices for Agent Design**
+
+**Do's:**
+- ✅ Keep personality consistent with your brand
+- ✅ Ask one question at a time
+- ✅ Acknowledge responses naturally ("Got it", "Perfect", "Okay")
+- ✅ Adapt to customer's energy and pace
+- ✅ Use industry-specific terminology appropriately
+
+**Don'ts:**
+- ❌ Sound robotic or scripted
+- ❌ Ask rapid-fire questions
+- ❌ Ignore customer emotions or urgency
+- ❌ Use complex technical language unnecessarily
+
+#### 📊 **Monitoring & Optimization**
+
+**View Performance:**
+- Admin dashboard: `/admin`
+- Call logs and transcripts
+- Customer data collection rates
+
+**Optimization Tips:**
+- Review call transcripts weekly
+- Identify common customer questions
+- Update conversation flow based on real interactions
+- A/B test different greetings and approaches
+
 ## 📈 Scaling & Production
 
 ### Performance Stats
