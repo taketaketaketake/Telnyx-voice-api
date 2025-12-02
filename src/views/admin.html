@@ -264,9 +264,15 @@
             white-space: nowrap;
         }
         
-        .transcript-cell {
-            max-width: 120px;
+        .actions-cell {
+            max-width: 150px;
             text-align: center;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
         }
         
         .btn-small {
@@ -336,6 +342,69 @@
             font-size: 14px;
             color: #1d1d1f;
             white-space: pre-wrap;
+        }
+        
+        .modal-tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e5e7;
+            margin-bottom: 20px;
+        }
+        
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+            color: #86868b;
+            transition: all 0.2s;
+        }
+        
+        .tab-btn.active {
+            color: #007aff;
+            border-bottom-color: #007aff;
+        }
+        
+        .tab-btn:hover {
+            color: #007aff;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .insight-summary {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #007aff;
+        }
+        
+        .insight-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid #e5e5e7;
+        }
+        
+        .insight-item h4 {
+            margin: 0 0 8px 0;
+            color: #007aff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .insight-item p {
+            margin: 0;
+            color: #1d1d1f;
+            font-size: 14px;
         }
         
         @media (max-width: 768px) {
@@ -450,7 +519,7 @@
                     <th>Issue</th>
                     <th>Status</th>
                     <th>Notes</th>
-                    <th>Transcript</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="callsBody">
@@ -462,15 +531,26 @@
         <p>Last updated: <span id="lastUpdated">-</span> | Auto-refresh every 30 seconds</p>
     </div>
 
-    <!-- Transcript Modal -->
-    <div id="transcriptModal" class="transcript-modal">
+    <!-- Call Details Modal -->
+    <div id="callDetailsModal" class="transcript-modal">
         <div class="transcript-modal-content">
             <div class="modal-header">
-                <h3>Call Transcript</h3>
-                <button class="modal-close" onclick="closeTranscriptModal()">&times;</button>
+                <h3 id="modalTitle">Call Details</h3>
+                <button class="modal-close" onclick="closeCallDetailsModal()">&times;</button>
             </div>
-            <div id="transcriptContent" class="transcript-text">
-                Loading transcript...
+            <div class="modal-tabs">
+                <button class="tab-btn active" onclick="showTab('transcript')">Transcript</button>
+                <button class="tab-btn" onclick="showTab('insights')">AI Insights</button>
+            </div>
+            <div id="transcriptTab" class="tab-content active">
+                <div id="transcriptContent" class="transcript-text">
+                    Loading transcript...
+                </div>
+            </div>
+            <div id="insightsTab" class="tab-content">
+                <div id="insightsContent" class="insights-content">
+                    Loading AI insights...
+                </div>
             </div>
         </div>
     </div>
@@ -573,8 +653,11 @@
                         <td class="issue-description" title="${call.issue_description || ''}">${call.issue_description || '-'}</td>
                         <td><span class="status ${call.status}">${call.status}</span></td>
                         <td>${call.additional_notes || '-'}</td>
-                        <td class="transcript-cell">
-                            <button class="btn-small" onclick="viewTranscript('${call.call_id}')">View</button>
+                        <td class="actions-cell">
+                            <div class="action-buttons">
+                                <button class="btn-small" onclick="viewCallDetails('${call.call_id}', 'transcript')">Transcript</button>
+                                <button class="btn-small" onclick="viewCallDetails('${call.call_id}', 'insights')">Insights</button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -726,12 +809,49 @@
             }
         });
 
-        // Transcript functions
-        async function viewTranscript(callId) {
-            const modal = document.getElementById('transcriptModal');
-            const content = document.getElementById('transcriptContent');
+        // Call Details functions
+        let currentCallId = null;
+        
+        async function viewCallDetails(callId, defaultTab = 'transcript') {
+            currentCallId = callId;
+            const modal = document.getElementById('callDetailsModal');
+            const modalTitle = document.getElementById('modalTitle');
             
+            modalTitle.textContent = `Call Details - ${callId}`;
             modal.style.display = 'block';
+            
+            // Show the requested tab
+            showTab(defaultTab);
+            
+            // Load both transcript and insights data
+            if (defaultTab === 'transcript') {
+                await loadTranscript(callId);
+            } else {
+                await loadInsights(callId);
+            }
+        }
+        
+        function showTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+            
+            // Load data if switching tabs
+            if (currentCallId) {
+                if (tabName === 'transcript') {
+                    loadTranscript(currentCallId);
+                } else if (tabName === 'insights') {
+                    loadInsights(currentCallId);
+                }
+            }
+        }
+        
+        async function loadTranscript(callId) {
+            const content = document.getElementById('transcriptContent');
             content.textContent = 'Loading transcript...';
             
             try {
@@ -746,7 +866,6 @@
                 if (data.success && data.data && data.data.transcript_text) {
                     content.textContent = data.data.transcript_text;
                 } else if (data.error) {
-                    // Handle specific error messages with helpful details
                     const isNotFound = data.error.includes('not found') || data.error.includes('not available');
                     const details = data.details || '';
                     const suggestion = data.suggestion || '';
@@ -757,7 +876,7 @@
                                 <p>📝 ${data.error}</p>
                                 ${details ? `<p style="font-size: 12px; margin-top: 10px; color: #666;">${details}</p>` : ''}
                                 ${suggestion ? `<p style="font-size: 12px; margin-top: 8px; color: #007aff;">${suggestion}</p>` : ''}
-                                <button onclick="viewTranscript('${callId}')" style="margin-top: 15px; padding: 8px 16px; background: #007aff; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                <button onclick="loadTranscript('${callId}')" style="margin-top: 15px; padding: 8px 16px; background: #007aff; color: white; border: none; border-radius: 6px; cursor: pointer;">
                                     Retry
                                 </button>
                             </div>
@@ -787,7 +906,96 @@
                     <div style="color: #ff3b30; text-align: center; padding: 20px;">
                         <p>⚠️ Error loading transcript</p>
                         <p style="font-size: 14px; margin-top: 10px;">${error.message}</p>
-                        <button onclick="viewTranscript('${callId}')" style="margin-top: 15px; padding: 8px 16px; background: #007aff; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        <button onclick="loadTranscript('${callId}')" style="margin-top: 15px; padding: 8px 16px; background: #007aff; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        async function loadInsights(callId) {
+            const content = document.getElementById('insightsContent');
+            content.innerHTML = 'Loading AI insights...';
+            
+            try {
+                const response = await fetch(`/api/calls/${callId}/insights`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    // Group insights by type for better display
+                    const insights = data.data;
+                    const groupedInsights = {};
+                    
+                    insights.forEach(insight => {
+                        if (!groupedInsights[insight.insight_type]) {
+                            groupedInsights[insight.insight_type] = [];
+                        }
+                        groupedInsights[insight.insight_type].push(insight);
+                    });
+                    
+                    let html = `<div class="insight-summary">
+                        <h4>📊 AI Insights Summary</h4>
+                        <p>Found ${insights.length} insights from this call</p>
+                    </div>`;
+                    
+                    Object.keys(groupedInsights).forEach(type => {
+                        const typeInsights = groupedInsights[type];
+                        html += `<div class="insight-item">
+                            <h4>${type.replace('_', ' ').toUpperCase()}</h4>`;
+                        
+                        typeInsights.forEach(insight => {
+                            let displayData = '';
+                            
+                            if (type === 'customer_name' && insight.data.customer_name) {
+                                displayData = insight.data.customer_name;
+                            } else if (type === 'sentiment' && insight.data.sentiment) {
+                                displayData = `${insight.data.sentiment}`;
+                            } else if (type === 'keywords' && insight.data.keywords) {
+                                displayData = Array.isArray(insight.data.keywords) 
+                                    ? insight.data.keywords.join(', ') 
+                                    : insight.data.keywords;
+                            } else if (type === 'summary' && insight.data.summary) {
+                                displayData = insight.data.summary;
+                            } else if (insight.data.issue_description) {
+                                displayData = insight.data.issue_description;
+                            } else {
+                                displayData = JSON.stringify(insight.data, null, 2);
+                            }
+                            
+                            html += `<p>${displayData}</p>`;
+                        });
+                        
+                        html += `</div>`;
+                    });
+                    
+                    content.innerHTML = html;
+                } else {
+                    content.innerHTML = `
+                        <div style="color: #86868b; text-align: center; padding: 20px;">
+                            <p>🤖 No AI insights available</p>
+                            <p style="font-size: 14px; margin-top: 10px;">
+                                AI insights are generated automatically from call transcripts. 
+                                This call may not have insights yet, or AI processing may be disabled.
+                            </p>
+                            <button onclick="loadInsights('${callId}')" style="margin-top: 15px; padding: 8px 16px; background: #007aff; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                Retry
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Insights error:', error);
+                content.innerHTML = `
+                    <div style="color: #ff3b30; text-align: center; padding: 20px;">
+                        <p>⚠️ Error loading AI insights</p>
+                        <p style="font-size: 14px; margin-top: 10px;">${error.message}</p>
+                        <button onclick="loadInsights('${callId}')" style="margin-top: 15px; padding: 8px 16px; background: #007aff; color: white; border: none; border-radius: 6px; cursor: pointer;">
                             Retry
                         </button>
                     </div>
@@ -795,14 +1003,15 @@
             }
         }
 
-        function closeTranscriptModal() {
-            document.getElementById('transcriptModal').style.display = 'none';
+        function closeCallDetailsModal() {
+            document.getElementById('callDetailsModal').style.display = 'none';
+            currentCallId = null;
         }
 
         // Close modal when clicking outside
-        document.getElementById('transcriptModal').addEventListener('click', function(e) {
+        document.getElementById('callDetailsModal').addEventListener('click', function(e) {
             if (e.target === this) {
-                closeTranscriptModal();
+                closeCallDetailsModal();
             }
         });
     </script>
