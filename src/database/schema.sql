@@ -53,8 +53,7 @@ CREATE TABLE IF NOT EXISTS ai_insights (
   call_id TEXT NOT NULL,
   insight_type TEXT NOT NULL, -- 'customer_name', 'sentiment', etc.
   data TEXT NOT NULL, -- JSON data from AI insights
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (call_id) REFERENCES call_data(call_id)
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Indexes for faster queries
