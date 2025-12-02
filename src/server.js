@@ -163,7 +163,7 @@ app.get('/api/calls/:call_id/transcript', async (req, res) => {
 // API endpoint to get AI insights
 app.get('/api/ai-insights', (req, res) => {
   try {
-    console.log('🔍 Fetching AI insights with filters:', req.query);
+    console.log('🔍 [AI-INSIGHTS] Fetching AI insights with filters:', req.query);
     
     const filters = {};
     const limit = parseInt(req.query.limit) || 50;

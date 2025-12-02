@@ -604,6 +604,7 @@
         // AI Insights functions
         async function loadAIInsights() {
             try {
+                console.log('Fetching insights from:', window.location.origin + '/api/ai-insights?limit=10');
                 const response = await fetch('/api/ai-insights?limit=10');
                 
                 if (!response.ok) {
