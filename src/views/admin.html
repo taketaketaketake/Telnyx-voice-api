@@ -656,12 +656,15 @@
         function updateInsightsList(insights) {
             const container = document.getElementById('insightsList');
             
-            if (insights.length === 0) {
+            // Filter out raw insights from display
+            const filteredInsights = insights.filter(insight => insight.insight_type !== 'raw');
+            
+            if (filteredInsights.length === 0) {
                 container.innerHTML = '<div style="text-align: center; color: #86868b; padding: 20px;">No AI insights yet</div>';
                 return;
             }
             
-            const insightsHTML = insights.map(insight => {
+            const insightsHTML = filteredInsights.map(insight => {
                 const createdAt = new Date(insight.created_at);
                 const timeAgo = getTimeAgo(createdAt);
                 
