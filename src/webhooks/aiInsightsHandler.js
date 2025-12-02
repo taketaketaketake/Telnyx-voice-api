@@ -98,7 +98,20 @@ export async function handleAIInsightsWebhook(req, res) {
         console.log('✅ AI insights stored successfully for call:', callId);
       } catch (dbError) {
         console.error('❌ Error storing AI insights:', dbError);
+        console.error('Database error details:', {
+          message: dbError.message,
+          stack: dbError.stack,
+          callId,
+          insights
+        });
       }
+    } else {
+      console.log('⚠️ No call ID or insights found, skipping database storage:', {
+        hasCallId: !!callId,
+        hasInsights: Object.keys(insights).length > 0,
+        callId,
+        insights
+      });
     }
     
     // Always respond with 200 OK to acknowledge receipt

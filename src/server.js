@@ -163,6 +163,8 @@ app.get('/api/calls/:call_id/transcript', async (req, res) => {
 // API endpoint to get AI insights
 app.get('/api/ai-insights', (req, res) => {
   try {
+    console.log('🔍 Fetching AI insights with filters:', req.query);
+    
     const filters = {};
     const limit = parseInt(req.query.limit) || 50;
     
@@ -171,13 +173,19 @@ app.get('/api/ai-insights', (req, res) => {
     
     const insights = aiInsightsOperations.getAll(filters, limit);
     
+    console.log(`📊 Found ${insights.length} AI insights`);
+    
     res.json({
       success: true,
       data: insights,
       total: insights.length
     });
   } catch (error) {
-    console.error('Error fetching AI insights:', error);
+    console.error('❌ Error fetching AI insights:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack
+    });
     res.status(500).json({
       success: false,
       error: error.message

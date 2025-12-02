@@ -605,6 +605,11 @@
         async function loadAIInsights() {
             try {
                 const response = await fetch('/api/ai-insights?limit=10');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const data = await response.json();
                 
                 if (data.success) {
@@ -612,11 +617,19 @@
                     updateInsightsList(data.data);
                 } else {
                     console.error('Error loading insights:', data.error);
+                    document.getElementById('insightsList').innerHTML = 
+                        `<div style="text-align: center; color: #ff3b30; padding: 20px;">Error: ${data.error}</div>`;
                 }
             } catch (error) {
                 console.error('Error loading AI insights:', error);
                 document.getElementById('insightsList').innerHTML = 
-                    '<div style="text-align: center; color: #ff3b30; padding: 20px;">Error loading insights</div>';
+                    `<div style="text-align: center; color: #ff3b30; padding: 20px;">
+                        <p>⚠️ Error loading insights</p>
+                        <p style="font-size: 12px; margin-top: 5px;">${error.message}</p>
+                        <button onclick="loadAIInsights()" style="margin-top: 10px; padding: 5px 10px; background: #007aff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Retry
+                        </button>
+                    </div>`;
             }
         }
 

@@ -326,11 +326,21 @@ export const aiInsightsOperations = {
     const stmt = db.prepare('SELECT * FROM ai_insights WHERE call_id = ? ORDER BY created_at DESC');
     const insights = stmt.all(call_id);
     
-    // Parse JSON data
-    return insights.map(insight => ({
-      ...insight,
-      data: JSON.parse(insight.data)
-    }));
+    // Parse JSON data with error handling
+    return insights.map(insight => {
+      try {
+        return {
+          ...insight,
+          data: JSON.parse(insight.data)
+        };
+      } catch (parseError) {
+        console.error('Error parsing insight data:', parseError, 'Raw data:', insight.data);
+        return {
+          ...insight,
+          data: { error: 'Invalid JSON data', raw: insight.data }
+        };
+      }
+    });
   },
 
   /**
@@ -341,11 +351,21 @@ export const aiInsightsOperations = {
     const stmt = db.prepare('SELECT * FROM ai_insights WHERE insight_type = ? ORDER BY created_at DESC LIMIT ?');
     const insights = stmt.all(insight_type, limit);
     
-    // Parse JSON data
-    return insights.map(insight => ({
-      ...insight,
-      data: JSON.parse(insight.data)
-    }));
+    // Parse JSON data with error handling
+    return insights.map(insight => {
+      try {
+        return {
+          ...insight,
+          data: JSON.parse(insight.data)
+        };
+      } catch (parseError) {
+        console.error('Error parsing insight data:', parseError, 'Raw data:', insight.data);
+        return {
+          ...insight,
+          data: { error: 'Invalid JSON data', raw: insight.data }
+        };
+      }
+    });
   },
 
   /**
@@ -377,11 +397,21 @@ export const aiInsightsOperations = {
     const stmt = db.prepare(query);
     const insights = stmt.all(...params);
     
-    // Parse JSON data
-    return insights.map(insight => ({
-      ...insight,
-      data: JSON.parse(insight.data)
-    }));
+    // Parse JSON data with error handling
+    return insights.map(insight => {
+      try {
+        return {
+          ...insight,
+          data: JSON.parse(insight.data)
+        };
+      } catch (parseError) {
+        console.error('Error parsing insight data:', parseError, 'Raw data:', insight.data);
+        return {
+          ...insight,
+          data: { error: 'Invalid JSON data', raw: insight.data }
+        };
+      }
+    });
   }
 };
 
