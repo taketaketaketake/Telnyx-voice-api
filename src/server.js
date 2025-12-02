@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { initDatabase, getDatabase, callDataOperations, transcriptOperations } from './database/db.js';
 import { handleCallWebhook } from './webhooks/callHandler.js';
 import { handleSMSWebhook } from './webhooks/smsHandler.js';
+import { handleAIInsightsWebhook } from './webhooks/aiInsightsHandler.js';
 
 // Load environment variables
 dotenv.config();
@@ -58,6 +59,8 @@ app.get('/admin', (req, res) => {
 app.post('/webhooks/telnyx', handleCallWebhook);
 app.get('/webhooks/telnyx', (req, res) => res.json({ status: 'webhook endpoint ready' }));
 app.post('/webhooks/sms', handleSMSWebhook);
+app.post('/webhooks/ai-insights', handleAIInsightsWebhook);
+app.get('/webhooks/ai-insights', (req, res) => res.json({ status: 'AI insights webhook endpoint ready' }));
 
 // API endpoint to get all calls
 app.get('/api/calls', (req, res) => {
