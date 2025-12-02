@@ -302,6 +302,89 @@ export const smsConversationOperations = {
   }
 };
 
+// Database operations for AI insights
+export const aiInsightsOperations = {
+  /**
+   * Create a new AI insight record
+   */
+  create(call_id, insight_type, data) {
+    const db = getDatabase();
+    const stmt = db.prepare(`
+      INSERT INTO ai_insights (call_id, insight_type, data)
+      VALUES (?, ?, ?)
+    `);
+
+    const result = stmt.run(call_id, insight_type, JSON.stringify(data));
+    return result.lastInsertRowid;
+  },
+
+  /**
+   * Get insights by call_id
+   */
+  getByCallId(call_id) {
+    const db = getDatabase();
+    const stmt = db.prepare('SELECT * FROM ai_insights WHERE call_id = ? ORDER BY created_at DESC');
+    const insights = stmt.all(call_id);
+    
+    // Parse JSON data
+    return insights.map(insight => ({
+      ...insight,
+      data: JSON.parse(insight.data)
+    }));
+  },
+
+  /**
+   * Get insights by type
+   */
+  getByType(insight_type, limit = 50) {
+    const db = getDatabase();
+    const stmt = db.prepare('SELECT * FROM ai_insights WHERE insight_type = ? ORDER BY created_at DESC LIMIT ?');
+    const insights = stmt.all(insight_type, limit);
+    
+    // Parse JSON data
+    return insights.map(insight => ({
+      ...insight,
+      data: JSON.parse(insight.data)
+    }));
+  },
+
+  /**
+   * Get all insights with optional filters
+   */
+  getAll(filters = {}, limit = 50) {
+    const db = getDatabase();
+    let query = 'SELECT ai.*, cd.customer_name as call_customer_name, cd.phone_number FROM ai_insights ai LEFT JOIN call_data cd ON ai.call_id = cd.call_id';
+    const params = [];
+    const conditions = [];
+
+    if (filters.insight_type) {
+      conditions.push('ai.insight_type = ?');
+      params.push(filters.insight_type);
+    }
+
+    if (filters.call_id) {
+      conditions.push('ai.call_id = ?');
+      params.push(filters.call_id);
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    query += ' ORDER BY ai.created_at DESC LIMIT ?';
+    params.push(limit);
+
+    const stmt = db.prepare(query);
+    const insights = stmt.all(...params);
+    
+    // Parse JSON data
+    return insights.map(insight => ({
+      ...insight,
+      data: JSON.parse(insight.data)
+    }));
+  }
+};
+
 export default {
   getDatabase,
   initDatabase,
@@ -309,5 +392,6 @@ export default {
   callDataOperations,
   transcriptOperations,
   smsOperations,
-  smsConversationOperations
+  smsConversationOperations,
+  aiInsightsOperations
 };

@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
-import { initDatabase, getDatabase, callDataOperations, transcriptOperations } from './database/db.js';
+import { initDatabase, getDatabase, callDataOperations, transcriptOperations, aiInsightsOperations } from './database/db.js';
 import { handleCallWebhook } from './webhooks/callHandler.js';
 import { handleSMSWebhook } from './webhooks/smsHandler.js';
 import { handleAIInsightsWebhook } from './webhooks/aiInsightsHandler.js';
@@ -153,6 +153,51 @@ app.get('/api/calls/:call_id/transcript', async (req, res) => {
     }
   } catch (error) {
     console.error('Error fetching transcript:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// API endpoint to get AI insights
+app.get('/api/ai-insights', (req, res) => {
+  try {
+    const filters = {};
+    const limit = parseInt(req.query.limit) || 50;
+    
+    if (req.query.insight_type) filters.insight_type = req.query.insight_type;
+    if (req.query.call_id) filters.call_id = req.query.call_id;
+    
+    const insights = aiInsightsOperations.getAll(filters, limit);
+    
+    res.json({
+      success: true,
+      data: insights,
+      total: insights.length
+    });
+  } catch (error) {
+    console.error('Error fetching AI insights:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// API endpoint to get AI insights for a specific call
+app.get('/api/calls/:call_id/insights', (req, res) => {
+  try {
+    const callId = req.params.call_id;
+    const insights = aiInsightsOperations.getByCallId(callId);
+    
+    res.json({
+      success: true,
+      data: insights,
+      total: insights.length
+    });
+  } catch (error) {
+    console.error('Error fetching call insights:', error);
     res.status(500).json({
       success: false,
       error: error.message
