@@ -6,7 +6,7 @@ Your AI assistant is currently configured as **Hendrix** for **Bags of Laundry**
 
 ---
 
-## =� Telnyx Portal Instructions
+## =� Telnyx Portal Instructions
 
 Copy and paste the following into your Telnyx AI Assistant configuration:
 
@@ -61,7 +61,7 @@ Hangup after a closing statement from caller when it would be appropriate to end
 
 ---
 
-## <� Agent Persona Details
+## <� Agent Persona Details
 
 - **Name**: Hendrix
 - **Business**: Bags of Laundry  
@@ -69,7 +69,7 @@ Hangup after a closing statement from caller when it would be appropriate to end
 - **Voice**: Warm, friendly, conversational (Detroit-local friendliness)
 - **Purpose**: Collect customer laundry pickup requests and schedule service
 
-## =� Detailed Call Flow & Business Workflow
+## =� Detailed Call Flow & Business Workflow
 
 ### Why People Call a Laundry Service:
 
@@ -185,7 +185,7 @@ comforters are priced separately. Would you like me to
 schedule a pickup so you can try our service?"
 ```
 
-## <� Conversation Adaptability Examples
+## <� Conversation Adaptability Examples
 
 **Frustrated Customer:**
 - "I completely understand - that sounds really inconvenient. Let's get this taken care of right away."
@@ -202,7 +202,7 @@ schedule a pickup so you can try our service?"
 **New Customer:**
 - Explain services briefly: "We handle all types of laundry - regular wash, dry cleaning, delicates."
 
-## � Technical Configuration
+## � Technical Configuration
 
 **Current Settings:**
 - **Model**: Qwen/Qwen3-235B-A22B (High-quality conversational AI)
@@ -216,7 +216,7 @@ schedule a pickup so you can try our service?"
 - **save_call_data**: Automatically triggered when customer info is complete
 - **Parameters**: phone_number, customer_name, address, service_type, special_instructions
 
-## =� Data Collection & Storage
+## =� Data Collection & Storage
 
 **Enhanced Data Collection Structure:**
 ```javascript
@@ -255,14 +255,14 @@ schedule a pickup so you can try our service?"
 - L Ignore customer emotions or urgency
 - L Use complex technical language unnecessarily
 
-## =� Success Metrics to Track
+## =� Success Metrics to Track
 
-- **Call-to-conversion rate** (calls � scheduled pickups)
+- **Call-to-conversion rate** (calls � scheduled pickups)
 - **Information completeness** (all required fields collected)
 - **Call duration** (target: 2-3 minutes)
 - **Customer satisfaction** (follow-up survey)
 
-## =� Customization for Other Businesses
+## =� Customization for Other Businesses
 
 **Example Business Adaptations:**
 
@@ -286,3 +286,127 @@ schedule a pickup so you can try our service?"
 - Greeting: "Hi, this is Tom with Fix My Furnace. What can we help you with?"
 - Collects: system type, issue description, urgency level
 ```
+
+---
+
+## 📞 Simple Call Flow Reference
+
+#### 🎯 **Agent Persona**
+- **Name**: Hendrix
+- **Business**: Bags of Laundry  
+- **Location**: Michigan, USA
+- **Voice**: Warm, friendly, conversational (Detroit-local friendliness)
+- **Purpose**: Collect customer laundry pickup requests and schedule service
+
+#### 📞 **Call Flow & Instructions**
+
+**1. Greeting (Natural & Warm)**
+```
+"Hi, this is Hendrix with Bags of Laundry. How are you today?"
+```
+
+**2. Service Inquiry**
+- Listen to customer's laundry needs
+- Ask: "What can we help you with today?"
+- Common requests: laundry pickup, dry cleaning, special items
+
+**3. Information Collection (One question at a time)**
+```
+Required Information:
+✅ Customer name: "Can I get your name, please?"
+✅ Pickup address: "And what address should we come to?"  
+✅ Service details: "What type of laundry service do you need?"
+✅ Special instructions: "Any special care instructions or items?"
+```
+
+**4. Data Processing**
+Once all required info is collected, Hendrix automatically:
+- Calls `save_call_data` function to store customer information
+- Confirms details with customer
+- Explains next steps
+
+**5. Professional Closing**
+```
+"Perfect! I've got all your information. We'll reach out shortly to 
+confirm your pickup time. Thanks for choosing Bags of Laundry!"
+```
+
+#### 🎭 **Conversation Adaptability**
+
+**Frustrated Customer:**
+- "I completely understand - that sounds really inconvenient. Let's get this taken care of right away."
+- Be empathetic and reassuring
+
+**Busy Customer:**  
+- "No problem, I'll make this quick. Just need your name and address."
+- Be efficient and direct
+
+**Elderly Customer:**
+- "No rush at all, take your time."
+- Be patient and gentle
+
+**New Customer:**
+- Explain services briefly: "We handle all types of laundry - regular wash, dry cleaning, delicates."
+
+#### ⚙️ **Technical Configuration**
+
+**Current Settings:**
+- **Model**: Qwen/Qwen3-235B-A22B (High-quality conversational AI)
+- **Voice**: NaturalHD/eliphas (Natural, professional male voice)
+- **Transcription**: deepgram/Flux (High-accuracy speech-to-text)
+- **Interruptions**: Enabled (customers can interrupt naturally)
+- **Language**: English (US)
+
+**Function Integration:**
+- **save_call_data**: Automatically triggered when customer info is complete
+- **Parameters**: phone_number, customer_name, address, service_type, special_instructions
+
+#### 📝 **Customizing Your Agent**
+
+**To modify the agent for your business:**
+
+1. **Update Agent in Telnyx Portal:**
+   - Go to AI Assistants → Select your assistant
+   - Modify system prompt with your business details
+   - Change greeting message
+   - Update conversation flow
+
+2. **Update Code Configuration:**
+   ```javascript
+   // In src/services/telnyx.js
+   greeting: "Hi, this is [Your Agent] with [Your Business]..."
+   ```
+
+3. **Modify Data Collection:**
+   ```javascript
+   // In src/functions/saveCallData.js  
+   // Update fields for your business needs
+   ```
+
+#### 🔧 **Best Practices for Agent Design**
+
+**Do's:**
+- ✅ Keep personality consistent with your brand
+- ✅ Ask one question at a time
+- ✅ Acknowledge responses naturally ("Got it", "Perfect", "Okay")
+- ✅ Adapt to customer's energy and pace
+- ✅ Use industry-specific terminology appropriately
+
+**Don'ts:**
+- ❌ Sound robotic or scripted
+- ❌ Ask rapid-fire questions
+- ❌ Ignore customer emotions or urgency
+- ❌ Use complex technical language unnecessarily
+
+#### 📊 **Monitoring & Optimization**
+
+**View Performance:**
+- Admin dashboard: `/admin`
+- Call logs and transcripts
+- Customer data collection rates
+
+**Optimization Tips:**
+- Review call transcripts weekly
+- Identify common customer questions
+- Update conversation flow based on real interactions
+- A/B test different greetings and approaches
