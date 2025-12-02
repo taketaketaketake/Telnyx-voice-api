@@ -9,22 +9,48 @@ export async function handleAIInsightsWebhook(req, res) {
     
     console.log('🧠 Received AI Insights webhook:', JSON.stringify(event, null, 2));
     
-    // Extract insights data
-    const callId = event.call_id;
-    const insights = event.insights || event.data || {};
-    const summary = event.summary;
-    const timestamp = event.timestamp || new Date().toISOString();
+    // Extract insights data from conversation_insight_result payload
+    const payload = event.payload || event.data || {};
+    const callId = payload.call_leg_id || payload.call_session_id;
+    const conversationId = payload.conversation_id;
+    const results = payload.results || [];
+    const timestamp = event.occurred_at || new Date().toISOString();
+    
+    // Parse the results to extract customer data
+    let insights = {};
+    let customerName = null;
+    
+    // Look for customer_name in results
+    results.forEach(result => {
+      if (result.result) {
+        try {
+          // Parse the JSON string in result.result
+          const parsedResult = JSON.parse(result.result);
+          if (parsedResult.customer_name) {
+            customerName = parsedResult.customer_name;
+            insights.customer_name = customerName;
+          }
+          // Merge any other parsed data
+          insights = { ...insights, ...parsedResult };
+        } catch (parseError) {
+          console.error('Error parsing result JSON:', parseError);
+          console.log('Raw result:', result.result);
+        }
+      }
+    });
     
     // Log the insights for debugging
     console.log('📊 Call Insights:', {
       callId,
-      summary,
+      conversationId,
+      customerName,
       insights,
-      timestamp
+      timestamp,
+      resultsCount: results.length
     });
     
     // Store insights in database
-    if (callId) {
+    if (callId && Object.keys(insights).length > 0) {
       try {
         // Store customer name if extracted
         if (insights.customer_name) {
@@ -78,7 +104,10 @@ export async function handleAIInsightsWebhook(req, res) {
     res.status(200).json({ 
       received: true,
       message: 'AI insights processed successfully',
-      callId: callId 
+      callId: callId,
+      conversationId: conversationId,
+      extractedInsights: Object.keys(insights).length,
+      customerName: customerName
     });
 
   } catch (error) {
