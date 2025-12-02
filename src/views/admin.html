@@ -743,14 +743,17 @@
                 if (data.success && data.data && data.data.transcript_text) {
                     content.textContent = data.data.transcript_text;
                 } else if (data.error) {
-                    // Handle specific error messages
-                    if (data.error.includes('404') || data.error.includes('not found')) {
+                    // Handle specific error messages with helpful details
+                    const isNotFound = data.error.includes('not found') || data.error.includes('not available');
+                    const details = data.details || '';
+                    const suggestion = data.suggestion || '';
+                    
+                    if (isNotFound) {
                         content.innerHTML = `
                             <div style="color: #86868b; text-align: center; padding: 20px;">
-                                <p>📝 Transcript not available yet</p>
-                                <p style="font-size: 14px; margin-top: 10px;">
-                                    Transcripts are generated after the call ends and may take a few minutes to appear.
-                                </p>
+                                <p>📝 ${data.error}</p>
+                                ${details ? `<p style="font-size: 12px; margin-top: 10px; color: #666;">${details}</p>` : ''}
+                                ${suggestion ? `<p style="font-size: 12px; margin-top: 8px; color: #007aff;">${suggestion}</p>` : ''}
                                 <button onclick="viewTranscript('${callId}')" style="margin-top: 15px; padding: 8px 16px; background: #007aff; color: white; border: none; border-radius: 6px; cursor: pointer;">
                                     Retry
                                 </button>
@@ -761,6 +764,7 @@
                             <div style="color: #ff3b30; text-align: center; padding: 20px;">
                                 <p>⚠️ Error loading transcript</p>
                                 <p style="font-size: 14px; margin-top: 10px;">${data.error}</p>
+                                ${details ? `<p style="font-size: 12px; margin-top: 8px; color: #666;">${details}</p>` : ''}
                             </div>
                         `;
                     }

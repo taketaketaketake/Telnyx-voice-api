@@ -146,17 +146,30 @@ app.get('/api/calls/:call_id/transcript', async (req, res) => {
         }
       });
     } else {
-      res.status(404).json({
+      res.status(200).json({
         success: false,
-        error: 'Transcript not available yet. Please try again in a few minutes.'
+        error: 'Transcript not available yet. Please try again in a few minutes.',
+        details: 'Transcripts are generated after calls end and may take 1-5 minutes to appear.'
       });
     }
   } catch (error) {
     console.error('Error fetching transcript:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    
+    // Handle specific Telnyx errors
+    if (error.status === 404) {
+      res.status(200).json({
+        success: false,
+        error: 'Transcript not found for this call',
+        details: 'This could mean: 1) Transcription is disabled, 2) Call was too short, 3) Transcript still processing, or 4) Call ended abnormally.',
+        suggestion: 'Try again in a few minutes, or check if transcription is enabled for your assistant.'
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: error.message,
+        details: 'Server error while fetching transcript from Telnyx'
+      });
+    }
   }
 });
 
