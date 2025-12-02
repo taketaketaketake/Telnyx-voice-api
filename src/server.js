@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { initDatabase, getDatabase, callDataOperations, transcriptOperations, aiInsightsOperations } from './database/db.js';
+import { AGENT_CONFIG } from './config/agent_name.js';
 import { handleCallWebhook } from './webhooks/callHandler.js';
 import { handleSMSWebhook } from './webhooks/smsHandler.js';
 import { handleAIInsightsWebhook } from './webhooks/aiInsightsHandler.js';
@@ -31,16 +32,16 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'Fix My Furnace - Hendrix'
+    service: `${AGENT_CONFIG.business} - ${AGENT_CONFIG.name}`
   });
 });
 
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
-    service: 'Fix My Furnace Voice Assistant',
-    agent: 'Hendrix',
-    organization: 'Fix My Furnace',
+    service: `${AGENT_CONFIG.business} Voice Assistant`,
+    agent: AGENT_CONFIG.name,
+    organization: AGENT_CONFIG.business,
     version: '1.0.0',
     endpoints: {
       health: '/health',
@@ -240,8 +241,8 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log('');
   console.log('🔧  ========================================');
-  console.log('🔧  Fix My Furnace Voice Assistant - Hendrix');
-  console.log('🔧  HVAC Service - Michigan');
+  console.log(`🔧  ${AGENT_CONFIG.business} Voice Assistant - ${AGENT_CONFIG.name}`);
+  console.log(`🔧  ${AGENT_CONFIG.serviceType} Service - ${AGENT_CONFIG.location}`);
   console.log('🔧  ========================================');
   console.log('');
   console.log(`✅ Server running on port ${PORT}`);

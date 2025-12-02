@@ -2,7 +2,7 @@ import { callDataOperations } from '../database/db.js';
 
 /**
  * Save Call Data Function
- * Called by Hendrix AI when customer information is collected
+ * Called by AI agent when customer information is collected
  *
  * @param {Object} params - Function parameters from AI
  * @param {string} params.phone_number - Customer phone number

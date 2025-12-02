@@ -43,12 +43,12 @@ Perfect for service businesses, sales teams, customer support, appointment sched
 
 ## ⚡ Live Demo Experience
 
-**Meet Hendrix** - Our AI assistant for "Fix My Furnace":
+**Meet Charlotte** - Our AI assistant for "Fix My Furnace":
 
 ```
 📞 Ring ring...
 
-🤖 "Hi, this is Hendrix with Fix My Furnace. How are you today?"
+🤖 "Hi, this is Charlotte with Fix My Furnace. How are you today?"
 
 👤 "Hi, I need to schedule a laundry pickup."
 
@@ -352,7 +352,7 @@ For deeper customization:
 For detailed agent instructions, conversation flows, and customization options, see **[agentdetails.md](agentdetails.md)**.
 
 **Quick Reference:**
-- **Current Agent**: Hendrix (Fix My Furnace HVAC service)
+- **Current Agent**: Charlotte (Fix My Furnace HVAC service)
 - **Configuration**: Copy instructions from agentdetails.md to Telnyx portal
 - **Customization**: Modify for your business needs using the examples provided
 

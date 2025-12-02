@@ -63,7 +63,7 @@ All your exact specifications are preserved:
 }
 ```
 
-### ✅ Hendrix Persona is Unchanged
+### ✅ Charlotte Persona is Unchanged
 
 The complete system prompt and conversation flow remain exactly as designed.
 
@@ -212,4 +212,4 @@ The migration to the official SDK provides:
 - ✅ Full type safety
 - ✅ **Exact same AI configuration** (Qwen, vespera, Flux)
 
-Your Hendrix voice assistant functionality remains unchanged. The code is now more robust and easier to maintain going forward.
+Your Charlotte voice assistant functionality remains unchanged. The code is now more robust and easier to maintain going forward.

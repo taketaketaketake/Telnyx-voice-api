@@ -1,7 +1,7 @@
 {
   "name": "telnyx-voice-assistant",
   "version": "1.0.0",
-  "description": "Low-latency voice assistant using Telnyx AI API with Hendrix persona",
+  "description": "Low-latency voice assistant using Telnyx AI API with configurable agent persona",
   "main": "src/server.js",
   "type": "module",
   "scripts": {

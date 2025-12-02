@@ -1,6 +1,6 @@
 import Telnyx from 'telnyx';
 import dotenv from 'dotenv';
-import { hendrixSystemPrompt, telnyxAIConfig, functionDefinitions } from '../config/hendrix.js';
+import { AGENT_CONFIG, agentSystemPrompt, telnyxAIConfig, functionDefinitions } from '../config/agent_name.js';
 
 dotenv.config();
 
@@ -81,7 +81,7 @@ export async function answerCallWithAI(callControlId) {
         id: assistantId
       },
       voice: "Telnyx.NaturalHD.vespera",
-      greeting: "Hi, this is Hendrix with Fix My Furnace. How are you today?",
+      greeting: AGENT_CONFIG.greeting(),
       interruption_settings: {
         enable: telnyxAIConfig.enable_interruptions
       },

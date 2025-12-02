@@ -5,6 +5,10 @@
 
 import { sendSMS } from '../services/telnyx.js';
 import { smsOperations } from '../database/db.js';
+import { AGENT_CONFIG } from '../config/agent_name.js';
+
+// TODO: SMS responses need to be updated for HVAC service when SMS is setup in Telnyx account
+// Currently contains mixed business contexts that need standardization
 
 /**
  * Generate AI-powered SMS response based on customer message
@@ -20,45 +24,52 @@ async function generateAIResponse(messageText, phoneNumber) {
     
     // Business hours inquiry
     if (lowerMessage.includes('hours') || lowerMessage.includes('open') || lowerMessage.includes('time')) {
-      return "We're open Mon-Fri 8AM-6PM, Sat 9AM-4PM, closed Sundays. Need to schedule a pickup? Call (855) 927-4224 or reply with your address!";
+      // TODO: Update business hours and phone number for HVAC service
+      return "We're open Mon-Fri 8AM-6PM, Sat 9AM-4PM, closed Sundays. Need to schedule service? Call our office or reply with your address!";
     }
     
     // Pricing inquiry
     if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('rate') || lowerMessage.includes('how much')) {
-      return "Our laundry service starts at $1.50/lb with free pickup & delivery! We handle wash, dry, fold + delicates. Call (855) 927-4224 for instant quote & scheduling.";
+      // TODO: Update pricing for HVAC service
+      return `Our ${AGENT_CONFIG.serviceType} service provides professional repair and maintenance! Contact us for a quote and scheduling.`;
     }
     
     // Pickup/scheduling request
     if (lowerMessage.includes('pickup') || lowerMessage.includes('schedule') || lowerMessage.includes('service') || 
         lowerMessage.includes('laundry') || lowerMessage.includes('wash')) {
-      return "Great! I'd love to help schedule your laundry pickup. For fastest service, call (855) 927-4224 to speak with Hendrix who can schedule you right away! Or reply with your address.";
+      // TODO: Update for HVAC service scheduling
+      return `Great! I'd love to help schedule your ${AGENT_CONFIG.serviceType} service. For fastest service, call our office to speak with ${AGENT_CONFIG.name} who can schedule you right away! Or reply with your address.`;
     }
     
     // Location/address inquiry
     if (lowerMessage.includes('address') || lowerMessage.includes('location') || lowerMessage.includes('where')) {
-      return "We provide pickup & delivery throughout Michigan! Just give us your address and we'll confirm if we service your area. Call (855) 927-4224 or text your address.";
+      // TODO: Update for HVAC service area
+      return `We provide ${AGENT_CONFIG.serviceType} service throughout ${AGENT_CONFIG.location}! Just give us your address and we'll confirm if we service your area. Call our office or text your address.`;
     }
     
     // Services inquiry
     if (lowerMessage.includes('what') || lowerMessage.includes('service') || lowerMessage.includes('do you')) {
-      return "We handle all your laundry needs: wash/dry/fold, delicates, dry cleaning, comforters, and more! Free pickup & delivery. Call (855) 927-4224 to get started.";
+      // TODO: Update for HVAC services
+      return `We handle all your ${AGENT_CONFIG.serviceType} needs: furnace repair, maintenance, installation, and more! Call our office to get started.`;
     }
     
     // Contact/phone inquiry
     if (lowerMessage.includes('phone') || lowerMessage.includes('call') || lowerMessage.includes('number')) {
-      return "Call us at (855) 927-4224 to speak with Hendrix, our helpful AI assistant who can answer questions and schedule your pickup instantly!";
+      // TODO: Update phone number for HVAC service
+      return `Call our office to speak with ${AGENT_CONFIG.name}, our helpful AI assistant who can answer questions and schedule your service instantly!`;
     }
     
     // Greeting or general inquiry
     if (lowerMessage.includes('hi') || lowerMessage.includes('hello') || lowerMessage.includes('hey') ||
         lowerMessage.includes('info') || lowerMessage.length < 10) {
-      return "Hi! Welcome to Fix My Furnace 🔧 We provide professional HVAC repair and maintenance service in Michigan. How can we help you today? Call (855) 927-4224 for instant service!";
+      return `Hi! Welcome to ${AGENT_CONFIG.business} 🔧 We provide professional ${AGENT_CONFIG.serviceType} repair and maintenance service in ${AGENT_CONFIG.location}. How can we help you today? Call our office for instant service!`;
     }
     
     // Emergency/urgent requests
     if (lowerMessage.includes('urgent') || lowerMessage.includes('emergency') || lowerMessage.includes('asap') || 
         lowerMessage.includes('today') || lowerMessage.includes('now')) {
-      return "For urgent laundry needs, call (855) 927-4224 right now! Hendrix can check same-day availability and get you scheduled ASAP.";
+      // TODO: Update for HVAC emergency service
+      return `For urgent ${AGENT_CONFIG.serviceType} needs, call our office right now! ${AGENT_CONFIG.name} can check same-day availability and get you scheduled ASAP.`;
     }
     
     // Address provided (looks like an address)
@@ -66,16 +77,17 @@ async function generateAIResponse(messageText, phoneNumber) {
          lowerMessage.includes('road') || lowerMessage.includes('rd ') || lowerMessage.includes('drive') ||
          lowerMessage.includes('michigan') || lowerMessage.includes('mi ')) &&
         (lowerMessage.includes('123') || /\d/.test(lowerMessage))) {
-      return "Perfect! We can definitely service that area. Call (855) 927-4224 now and Hendrix will get your pickup scheduled right away with exact pricing and timing!";
+      // TODO: Update for HVAC service scheduling
+      return `Perfect! We can definitely service that area. Call our office now and ${AGENT_CONFIG.name} will get your service scheduled right away with exact pricing and timing!`;
     }
     
     // Stop/unsubscribe
     if (lowerMessage.includes('stop') || lowerMessage.includes('unsubscribe')) {
-      return "You've been unsubscribed from Fix My Furnace messages. To resubscribe or schedule service, call (855) 927-4224. Thanks!";
+      return `You've been unsubscribed from ${AGENT_CONFIG.business} messages. To resubscribe or schedule service, call our office. Thanks!`;
     }
     
     // Default intelligent response for unrecognized messages
-    return "Thanks for reaching out to Fix My Furnace! For the quickest help with HVAC service, repairs, or questions, call (855) 927-4224 to chat with Hendrix, our AI assistant. He's available 24/7!";
+    return `Thanks for reaching out to ${AGENT_CONFIG.business}! For the quickest help with ${AGENT_CONFIG.serviceType} service, repairs, or questions, call our office to chat with ${AGENT_CONFIG.name}, our AI assistant. Available 24/7!`;
     
   } catch (error) {
     console.error('Error generating AI response:', error);
@@ -142,7 +154,8 @@ export async function handleSMSWebhook(req, res) {
         }
       } else {
         // Fallback response
-        const fallbackReply = "Thanks for your message! For fastest service, please call (855) 927-4224 to speak with Hendrix, our AI assistant.";
+        // TODO: Update phone number for HVAC service
+        const fallbackReply = `Thanks for your message! For fastest service, please call our office to speak with ${AGENT_CONFIG.name}, our AI assistant.`;
         try {
           const sentMessage = await sendSMS(fromNumber, fallbackReply);
           console.log(`✅ Fallback reply sent to ${fromNumber}`);

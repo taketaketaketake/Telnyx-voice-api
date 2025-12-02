@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Get Hendrix up and running in 5 minutes!
+Get Charlotte up and running in 5 minutes!
 
 ## Prerequisites
 
@@ -50,7 +50,7 @@ You should see:
 
 ```
 🎙️  ========================================
-🎙️  Telnyx Voice Assistant - Hendrix
+🎙️  Telnyx Voice Assistant - Charlotte
 🎙️  Fix My Furnace - Michigan
 🎙️  ========================================
 
@@ -92,7 +92,7 @@ Copy the HTTPS URL (e.g., `https://abc123.ngrok.io`)
 
 #### Option A: Call Your Number
 
-Simply call your Telnyx phone number and Hendrix will answer!
+Simply call your Telnyx phone number and Charlotte will answer!
 
 #### Option B: Check the Health Endpoint
 
@@ -105,7 +105,7 @@ Should return:
 {
   "status": "healthy",
   "timestamp": "2024-01-15T12:00:00.000Z",
-  "service": "Telnyx Voice Assistant - Hendrix"
+  "service": "Telnyx Voice Assistant - Charlotte"
 }
 ```
 
@@ -118,15 +118,15 @@ curl http://localhost:3000/api/calls
 ## Expected Call Flow
 
 1. **You call the number**
-2. **Hendrix answers**: "Hi, this is Hendrix with Fix My Furnace. How are you today?"
+2. **Charlotte answers**: "Hi, this is Charlotte with Fix My Furnace. How are you today?"
 3. **You respond**: "Hi, my furnace isn't working."
-4. **Hendrix collects info**:
+4. **Charlotte collects info**:
    - Your name
    - Service address
    - Issue description
    - Last service date (optional)
 5. **Data is automatically saved** to the database
-6. **Hendrix closes**: "Perfect, thank you for all that information..."
+6. **Charlotte closes**: "Perfect, thank you for all that information..."
 7. **Call ends**
 
 ## Verify Data Was Saved
@@ -169,7 +169,7 @@ curl http://localhost:3000/api/calls | json_pp
 
 Now that your working version is running, you can:
 
-- ✨ Customize Hendrix's personality in `src/config/hendrix.js`
+- ✨ Customize Charlotte's personality in `src/config/hendrix.js`
 - 📊 Add more API endpoints for call management
 - 📝 Implement transcript retrieval
 - 🔔 Add notifications when calls are received
@@ -208,4 +208,4 @@ git status
 
 **You're all set! 🎉**
 
-Call your Telnyx number and chat with Hendrix!
+Call your Telnyx number and chat with Charlotte!
