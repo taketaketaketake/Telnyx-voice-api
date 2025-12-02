@@ -11,7 +11,8 @@ export async function handleAIInsightsWebhook(req, res) {
     
     // Extract insights data from conversation_insight_result payload
     const payload = event.payload || event.data || {};
-    const callId = payload.call_leg_id || payload.call_session_id;
+    const metadata = payload.metadata || {};
+    const callId = metadata.call_leg_id || metadata.call_session_id || payload.call_leg_id || payload.call_session_id;
     const conversationId = payload.conversation_id;
     const results = payload.results || [];
     const timestamp = event.occurred_at || new Date().toISOString();
