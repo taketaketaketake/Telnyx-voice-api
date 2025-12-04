@@ -592,6 +592,13 @@
         // Load call details (transcript + insights)
         async function loadCallDetails(callId) {
             const container = document.getElementById(`content-${callId}`);
+
+            // If container doesn't exist (call filtered out), remove from expanded set and return
+            if (!container) {
+                expandedCalls.delete(callId);
+                return;
+            }
+
             container.innerHTML = '<div class="loading">Loading details...</div>';
 
             try {
@@ -686,11 +693,17 @@
 
                 html += '</div>';
 
-                container.innerHTML = html || '<div class="no-data">No additional details available</div>';
+                // Check if container still exists before updating (could be removed during async fetch)
+                if (container) {
+                    container.innerHTML = html || '<div class="no-data">No additional details available</div>';
+                }
 
             } catch (error) {
                 console.error('Error loading call details:', error);
-                container.innerHTML = '<div class="no-data">Error loading details</div>';
+                // Check if container still exists before updating
+                if (container) {
+                    container.innerHTML = '<div class="no-data">Error loading details</div>';
+                }
             }
         }
 
