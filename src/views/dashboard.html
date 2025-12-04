@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix My Furnace - Call Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f7;
+            padding: 20px;
+            color: #1d1d1f;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #1d1d1f;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .last-updated {
+            color: #86868b;
+            font-size: 14px;
+        }
+
+        .refresh-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: #0056b3;
+        }
+
+        .refresh-btn.spinning svg {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1d1d1f;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Live Calls Section */
+        .live-calls-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .live-call-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #34c759;
+        }
+
+        .live-call-item.ringing {
+            border-left-color: #007aff;
+        }
+
+        .live-call-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .live-call-phone {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        .live-call-duration {
+            color: #86868b;
+            font-size: 14px;
+        }
+
+        .live-call-details {
+            color: #1d1d1f;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .live-call-details div {
+            margin-bottom: 4px;
+        }
+
+        .live-call-label {
+            color: #86868b;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .no-live-calls {
+            text-align: center;
+            color: #86868b;
+            padding: 30px;
+            font-size: 16px;
+        }
+
+        /* Last 24 Hours Table */
+        .calls-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .calls-table th {
+            background: #f5f5f7;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #1d1d1f;
+            border-bottom: 2px solid #e5e5e7;
+            font-size: 14px;
+        }
+
+        .calls-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f5f5f7;
+            font-size: 14px;
+        }
+
+        .call-row {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .call-row:hover {
+            background: #fbfbfb;
+        }
+
+        .call-row.expanded {
+            background: #f8f9fa;
+        }
+
+        .call-details-row {
+            display: none;
+        }
+
+        .call-details-row.show {
+            display: table-row;
+        }
+
+        .call-details-content {
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e5e7;
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .detail-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #86868b;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            color: #1d1d1f;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .transcript-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            margin-top: 5px;
+        }
+
+        .insights-list {
+            margin-top: 5px;
+        }
+
+        .insight-item-detail {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .insight-item-detail:last-child {
+            margin-bottom: 0;
+        }
+
+        .phone {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-weight: 500;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .status.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.ringing {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status.completed {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .status.collected {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #86868b;
+        }
+
+        /* AI Insights Section */
+        .insights-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .insight-item {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 6px;
+            border-left: 3px solid #007aff;
+        }
+
+        .insight-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .insight-type {
+            font-weight: 600;
+            color: #007aff;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .insight-meta {
+            color: #86868b;
+            font-size: 12px;
+        }
+
+        .insight-data {
+            color: #1d1d1f;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .expand-icon {
+            transition: transform 0.2s;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .call-row.expanded .expand-icon {
+            transform: rotate(90deg);
+        }
+
+        .no-data {
+            text-align: center;
+            color: #86868b;
+            padding: 30px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>🔧 Fix My Furnace - Call Dashboard</h1>
+        <div class="header-right">
+            <div class="last-updated">Last updated: <span id="lastUpdated">-</span></div>
+            <button class="refresh-btn" onclick="manualRefresh()">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M13.65 2.35A8 8 0 1 0 16 8h-2a6 6 0 1 1-1.76-4.24L10 6h6V0l-2.35 2.35z"/>
+                </svg>
+                Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Live Calls Section -->
+    <div class="section">
+        <div class="section-title">
+            🔴 LIVE CALLS
+        </div>
+        <div id="liveCallsList" class="live-calls-list">
+            <div class="loading">Loading live calls...</div>
+        </div>
+    </div>
+
+    <!-- Last 24 Hours Section -->
+    <div class="section">
+        <div class="section-title">
+            📞 LAST 24 HOURS <span id="callCount" style="color: #86868b; font-size: 14px; font-weight: 400;"></span>
+        </div>
+        <div id="callsTableContainer">
+            <div class="loading">Loading calls...</div>
+        </div>
+    </div>
+
+    <!-- Recent AI Insights Section -->
+    <div class="section">
+        <div class="section-title">
+            🧠 RECENT AI INSIGHTS
+        </div>
+        <div id="insightsFeed" class="insights-feed">
+            <div class="loading">Loading insights...</div>
+        </div>
+    </div>
+
+    <script>
+        let autoRefreshInterval;
+        let expandedCalls = new Set();
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllData();
+            startAutoRefresh();
+        });
+
+        // Load all dashboard data
+        async function loadAllData() {
+            await Promise.all([
+                loadLiveCalls(),
+                loadLast24Hours(),
+                loadRecentInsights()
+            ]);
+            updateTimestamp();
+        }
+
+        // Manual refresh button
+        async function manualRefresh() {
+            const btn = document.querySelector('.refresh-btn');
+            btn.classList.add('spinning');
+            await loadAllData();
+            btn.classList.remove('spinning');
+        }
+
+        // Auto-refresh every 15 seconds
+        function startAutoRefresh() {
+            autoRefreshInterval = setInterval(loadAllData, 15000);
+        }
+
+        // Update timestamp
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = now.toLocaleTimeString();
+        }
+
+        // Load live calls (active/ringing)
+        async function loadLiveCalls() {
+            try {
+                const response = await fetch('/api/calls?limit=100');
+                const data = await response.json();
+
+                // Filter for active or ringing calls
+                const liveCalls = data.data.filter(call =>
+                    call.status === 'active' || call.status === 'ringing'
+                );
+
+                const container = document.getElementById('liveCallsList');
+
+                if (liveCalls.length === 0) {
+                    container.innerHTML = '<div class="no-live-calls">✓ No active calls right now</div>';
+                    return;
+                }
+
+                container.innerHTML = liveCalls.map(call => {
+                    const elapsed = getTimeElapsed(call.created_at);
+                    const statusClass = call.status === 'ringing' ? 'ringing' : '';
+
+                    let detailsHtml = '';
+                    if (call.customer_name) {
+                        detailsHtml += `<div><span class="live-call-label">Name:</span>${call.customer_name}</div>`;
+                    }
+                    if (call.address) {
+                        detailsHtml += `<div><span class="live-call-label">Address:</span>${call.address}</div>`;
+                    }
+                    if (call.issue_description) {
+                        detailsHtml += `<div><span class="live-call-label">Issue:</span>${call.issue_description}</div>`;
+                    }
+
+                    if (!detailsHtml) {
+                        detailsHtml = '<div style="color: #86868b; font-style: italic;">Collecting information...</div>';
+                    }
+
+                    return `
+                        <div class="live-call-item ${statusClass}">
+                            <div class="live-call-header">
+                                <span class="live-call-phone">📞 ${call.phone_number || 'Unknown'}</span>
+                                <span class="live-call-duration">Started ${elapsed}</span>
+                            </div>
+                            <div class="live-call-details">
+                                ${detailsHtml}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading live calls:', error);
+                document.getElementById('liveCallsList').innerHTML =
+                    '<div class="no-data">Error loading live calls</div>';
+            }
+        }
+
+        // Load last 24 hours of calls
+        async function loadLast24Hours() {
+            try {
+                const response = await fetch('/api/calls?limit=100');
+                const data = await response.json();
+
+                // Filter to last 24 hours
+                const now = new Date();
+                const yesterday = new Date(now - 24 * 60 * 60 * 1000);
+
+                const recentCalls = data.data.filter(call => {
+                    const callDate = new Date(call.created_at);
+                    return callDate >= yesterday;
+                });
+
+                // Update count
+                document.getElementById('callCount').textContent = `(${recentCalls.length} calls)`;
+
+                const container = document.getElementById('callsTableContainer');
+
+                if (recentCalls.length === 0) {
+                    container.innerHTML = '<div class="no-data">No calls in the last 24 hours</div>';
+                    return;
+                }
+
+                // Build table
+                let tableHtml = `
+                    <table class="calls-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 20px;"></th>
+                                <th>Time</th>
+                                <th>Phone Number</th>
+                                <th>Customer Name</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                recentCalls.forEach(call => {
+                    const time = formatTime(call.created_at);
+                    const isExpanded = expandedCalls.has(call.call_id);
+
+                    tableHtml += `
+                        <tr class="call-row ${isExpanded ? 'expanded' : ''}" onclick="toggleCallDetails('${call.call_id}')">
+                            <td><span class="expand-icon">▶</span></td>
+                            <td>${time}</td>
+                            <td class="phone">${call.phone_number || '-'}</td>
+                            <td>${call.customer_name || '-'}</td>
+                            <td><span class="status ${call.status}">${call.status}</span></td>
+                        </tr>
+                        <tr class="call-details-row ${isExpanded ? 'show' : ''}" id="details-${call.call_id}">
+                            <td colspan="5">
+                                <div class="call-details-content" id="content-${call.call_id}">
+                                    ${isExpanded ? '<div class="loading">Loading details...</div>' : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tableHtml += '</tbody></table>';
+                container.innerHTML = tableHtml;
+
+                // Reload expanded call details
+                expandedCalls.forEach(callId => {
+                    loadCallDetails(callId);
+                });
+
+            } catch (error) {
+                console.error('Error loading calls:', error);
+                document.getElementById('callsTableContainer').innerHTML =
+                    '<div class="no-data">Error loading calls</div>';
+            }
+        }
+
+        // Toggle call details
+        async function toggleCallDetails(callId) {
+            const detailsRow = document.getElementById(`details-${callId}`);
+            const callRow = detailsRow.previousElementSibling;
+
+            if (expandedCalls.has(callId)) {
+                // Collapse
+                expandedCalls.delete(callId);
+                detailsRow.classList.remove('show');
+                callRow.classList.remove('expanded');
+            } else {
+                // Expand
+                expandedCalls.add(callId);
+                detailsRow.classList.add('show');
+                callRow.classList.add('expanded');
+                await loadCallDetails(callId);
+            }
+        }
+
+        // Load call details (transcript + insights)
+        async function loadCallDetails(callId) {
+            const container = document.getElementById(`content-${callId}`);
+            container.innerHTML = '<div class="loading">Loading details...</div>';
+
+            try {
+                // Fetch call data, transcript, and insights in parallel
+                const [callResponse, transcriptResponse, insightsResponse] = await Promise.all([
+                    fetch(`/api/calls?limit=100`).then(r => r.json()),
+                    fetch(`/api/calls/${callId}/transcript`),
+                    fetch(`/api/calls/${callId}/insights`)
+                ]);
+
+                const callData = callResponse.data.find(c => c.call_id === callId);
+                const transcriptData = await transcriptResponse.json();
+                const insightsData = await insightsResponse.json();
+
+                let html = '';
+
+                // Basic call info
+                if (callData) {
+                    if (callData.address) {
+                        html += `
+                            <div class="detail-section">
+                                <div class="detail-label">📍 Address</div>
+                                <div class="detail-value">${callData.address}</div>
+                            </div>
+                        `;
+                    }
+
+                    if (callData.issue_description) {
+                        html += `
+                            <div class="detail-section">
+                                <div class="detail-label">📝 Reason for Call</div>
+                                <div class="detail-value">${callData.issue_description}</div>
+                            </div>
+                        `;
+                    }
+
+                    if (callData.additional_notes) {
+                        html += `
+                            <div class="detail-section">
+                                <div class="detail-label">📋 Additional Notes</div>
+                                <div class="detail-value">${callData.additional_notes}</div>
+                            </div>
+                        `;
+                    }
+                }
+
+                // AI Insights
+                if (insightsData.success && insightsData.data && insightsData.data.length > 0) {
+                    html += `
+                        <div class="detail-section">
+                            <div class="detail-label">🧠 AI Insights</div>
+                            <div class="insights-list">
+                    `;
+
+                    insightsData.data.forEach(insight => {
+                        const type = insight.insight_type.replace('_', ' ').toUpperCase();
+                        let value = '';
+
+                        if (insight.insight_type === 'call_summary' && insight.data.call_summary) {
+                            value = insight.data.call_summary;
+                        } else if (insight.insight_type === 'customer_name' && insight.data.customer_name) {
+                            value = insight.data.customer_name;
+                        } else if (insight.insight_type === 'reason_for_call' && insight.data.reason_for_call) {
+                            value = insight.data.reason_for_call;
+                        } else if (insight.insight_type === 'customer_address' && insight.data.customer_address) {
+                            value = insight.data.customer_address;
+                        } else {
+                            value = JSON.stringify(insight.data);
+                        }
+
+                        html += `
+                            <div class="insight-item-detail">
+                                <strong>${type}:</strong> ${value}
+                            </div>
+                        `;
+                    });
+
+                    html += '</div></div>';
+                }
+
+                // Transcript
+                html += '<div class="detail-section">';
+                html += '<div class="detail-label">📄 Transcript</div>';
+
+                if (transcriptData.success && transcriptData.data && transcriptData.data.transcript_text) {
+                    html += `<div class="transcript-box">${transcriptData.data.transcript_text}</div>`;
+                } else {
+                    html += '<div class="detail-value" style="color: #86868b; font-style: italic;">Transcript not available yet</div>';
+                }
+
+                html += '</div>';
+
+                container.innerHTML = html || '<div class="no-data">No additional details available</div>';
+
+            } catch (error) {
+                console.error('Error loading call details:', error);
+                container.innerHTML = '<div class="no-data">Error loading details</div>';
+            }
+        }
+
+        // Load recent AI insights
+        async function loadRecentInsights() {
+            try {
+                const response = await fetch('/api/ai-insights?limit=10');
+                const data = await response.json();
+
+                const container = document.getElementById('insightsFeed');
+
+                if (!data.success || !data.data || data.data.length === 0) {
+                    container.innerHTML = '<div class="no-data">No AI insights yet</div>';
+                    return;
+                }
+
+                // Filter out raw insights
+                const insights = data.data.filter(i => i.insight_type !== 'raw');
+
+                if (insights.length === 0) {
+                    container.innerHTML = '<div class="no-data">No AI insights yet</div>';
+                    return;
+                }
+
+                container.innerHTML = insights.map(insight => {
+                    const type = insight.insight_type.replace('_', ' ').toUpperCase();
+                    const time = formatTime(insight.created_at);
+                    const phone = insight.phone_number || 'Unknown';
+
+                    let displayData = '';
+                    if (insight.insight_type === 'call_summary' && insight.data.call_summary) {
+                        displayData = `"${insight.data.call_summary}"`;
+                    } else if (insight.insight_type === 'customer_name' && insight.data.customer_name) {
+                        displayData = `"${insight.data.customer_name}"`;
+                    } else if (insight.insight_type === 'reason_for_call' && insight.data.reason_for_call) {
+                        displayData = `"${insight.data.reason_for_call}"`;
+                    } else if (insight.insight_type === 'customer_address' && insight.data.customer_address) {
+                        displayData = `"${insight.data.customer_address}"`;
+                    } else {
+                        displayData = JSON.stringify(insight.data);
+                    }
+
+                    return `
+                        <div class="insight-item">
+                            <div class="insight-header">
+                                <span class="insight-type">${type}</span>
+                                <span class="insight-meta">${time} - ${phone}</span>
+                            </div>
+                            <div class="insight-data">${displayData}</div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading insights:', error);
+                document.getElementById('insightsFeed').innerHTML =
+                    '<div class="no-data">Error loading insights</div>';
+            }
+        }
+
+        // Helper: Format time as HH:MM AM/PM
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+        // Helper: Get time elapsed since date
+        function getTimeElapsed(dateString) {
+            const now = new Date();
+            const date = new Date(dateString);
+            const diff = now - date;
+
+            const seconds = Math.floor(diff / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+
+            if (hours > 0) return `${hours}h ${minutes % 60}m ago`;
+            if (minutes > 0) return `${minutes}m ago`;
+            return `${seconds}s ago`;
+        }
+
+        // Stop auto-refresh when page is hidden
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                clearInterval(autoRefreshInterval);
+            } else {
+                startAutoRefresh();
+            }
+        });
+    </script>
+</body>
+</html>

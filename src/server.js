@@ -51,9 +51,14 @@ app.get('/', (req, res) => {
   });
 });
 
-// Admin dashboard
+// Admin dashboard (old)
 app.get('/admin', (req, res) => {
   res.sendFile(new URL('../src/views/admin.html', import.meta.url).pathname);
+});
+
+// New simple dashboard
+app.get('/dashboard', (req, res) => {
+  res.sendFile(new URL('../src/views/dashboard.html', import.meta.url).pathname);
 });
 
 // Telnyx webhook endpoints
