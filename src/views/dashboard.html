@@ -308,6 +308,17 @@
             padding: 12px 15px;
             border-radius: 6px;
             border-left: 3px solid #007aff;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .insight-item:hover {
+            background: #e9ecef;
+            transform: translateX(2px);
+        }
+
+        .insight-item:active {
+            transform: translateX(1px);
         }
 
         .insight-header {
@@ -589,6 +600,36 @@
             }
         }
 
+        // Navigate to a call from AI insights
+        async function navigateToCall(callId) {
+            const detailsRow = document.getElementById(`details-${callId}`);
+
+            // Check if call is in the current table
+            if (!detailsRow) {
+                alert('This call is not in the current 24-hour view. It may have aged out.');
+                return;
+            }
+
+            const callRow = detailsRow.previousElementSibling;
+
+            // Expand if not already expanded
+            if (!expandedCalls.has(callId)) {
+                expandedCalls.add(callId);
+                detailsRow.classList.add('show');
+                callRow.classList.add('expanded');
+                await loadCallDetails(callId);
+            }
+
+            // Scroll to the call row
+            callRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Add a temporary highlight effect
+            callRow.style.backgroundColor = '#fff3cd';
+            setTimeout(() => {
+                callRow.style.backgroundColor = '';
+            }, 2000);
+        }
+
         // Load call details (transcript + insights)
         async function loadCallDetails(callId) {
             const container = document.getElementById(`content-${callId}`);
@@ -749,7 +790,7 @@
                     }
 
                     return `
-                        <div class="insight-item">
+                        <div class="insight-item" onclick="navigateToCall('${insight.call_id}')" title="Click to view full call details">
                             <div class="insight-header">
                                 <span class="insight-type">${type}</span>
                                 <span class="insight-meta">${time} - ${phone}</span>
