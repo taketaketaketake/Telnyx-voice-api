@@ -724,14 +724,12 @@
 
                         if (insight.insight_type === 'customer_name' && insight.data.customer_name) {
                             value = insight.data.customer_name;
-                        } else if (insight.insight_type === 'sentiment' && insight.data.sentiment) {
-                            value = insight.data.sentiment;
-                        } else if (insight.insight_type === 'keywords' && insight.data.keywords) {
-                            value = Array.isArray(insight.data.keywords)
-                                ? insight.data.keywords.join(', ')
-                                : insight.data.keywords;
-                        } else if (insight.insight_type === 'summary' && insight.data.summary) {
-                            value = insight.data.summary;
+                        } else if (insight.insight_type === 'call_summary' && insight.data.call_summary) {
+                            value = insight.data.call_summary;
+                        } else if (insight.insight_type === 'reason_for_call' && insight.data.reason_for_call) {
+                            value = insight.data.reason_for_call;
+                        } else if (insight.insight_type === 'customer_address' && insight.data.customer_address) {
+                            value = insight.data.customer_address;
                         } else {
                             value = JSON.stringify(insight.data);
                         }
@@ -795,14 +793,12 @@
                     let displayData = '';
                     if (insight.insight_type === 'customer_name' && insight.data.customer_name) {
                         displayData = `"${insight.data.customer_name}"`;
-                    } else if (insight.insight_type === 'sentiment' && insight.data.sentiment) {
-                        displayData = `${insight.data.sentiment}`;
-                    } else if (insight.insight_type === 'keywords' && insight.data.keywords) {
-                        displayData = Array.isArray(insight.data.keywords)
-                            ? insight.data.keywords.join(', ')
-                            : insight.data.keywords;
-                    } else if (insight.insight_type === 'summary' && insight.data.summary) {
-                        displayData = `"${insight.data.summary}"`;
+                    } else if (insight.insight_type === 'call_summary' && insight.data.call_summary) {
+                        displayData = `"${insight.data.call_summary}"`;
+                    } else if (insight.insight_type === 'reason_for_call' && insight.data.reason_for_call) {
+                        displayData = `"${insight.data.reason_for_call}"`;
+                    } else if (insight.insight_type === 'customer_address' && insight.data.customer_address) {
+                        displayData = `"${insight.data.customer_address}"`;
                     } else {
                         displayData = JSON.stringify(insight.data);
                     }

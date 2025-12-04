@@ -70,34 +70,34 @@ export async function handleAIInsightsWebhook(req, res) {
             conversation_id: conversationId
           });
         }
-        
-        // Store sentiment if available
-        if (insights.sentiment) {
-          console.log('😊 Sentiment:', insights.sentiment);
-          aiInsightsOperations.create(storageId, 'sentiment', {
-            sentiment: insights.sentiment,
+
+        // Store call summary if available
+        if (insights.call_summary) {
+          console.log('📝 Call Summary:', insights.call_summary);
+          aiInsightsOperations.create(storageId, 'call_summary', {
+            call_summary: insights.call_summary,
             extracted_at: timestamp,
             source: isSmsConversation ? 'sms_conversation' : 'voice_call',
             conversation_id: conversationId
           });
         }
-        
-        // Store keywords if available
-        if (insights.keywords) {
-          console.log('🔍 Keywords:', insights.keywords);
-          aiInsightsOperations.create(storageId, 'keywords', {
-            keywords: insights.keywords,
+
+        // Store reason for call if available
+        if (insights.reason_for_call) {
+          console.log('📞 Reason for Call:', insights.reason_for_call);
+          aiInsightsOperations.create(storageId, 'reason_for_call', {
+            reason_for_call: insights.reason_for_call,
             extracted_at: timestamp,
             source: isSmsConversation ? 'sms_conversation' : 'voice_call',
             conversation_id: conversationId
           });
         }
-        
-        // Store summary if available
-        if (insights.summary) {
-          console.log('📝 Summary:', insights.summary);
-          aiInsightsOperations.create(storageId, 'summary', {
-            summary: insights.summary,
+
+        // Store customer address if available
+        if (insights.customer_address) {
+          console.log('🏠 Customer Address:', insights.customer_address);
+          aiInsightsOperations.create(storageId, 'customer_address', {
+            customer_address: insights.customer_address,
             extracted_at: timestamp,
             source: isSmsConversation ? 'sms_conversation' : 'voice_call',
             conversation_id: conversationId
