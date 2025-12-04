@@ -143,18 +143,33 @@ export async function hangupCall(callControlId) {
  */
 export async function getCallTranscript(callId) {
   try {
-    console.log('📜 Retrieving transcript for call:', callId);
+    console.log('📜 Retrieving latest recording transcriptions...');
+    console.log('(Note: Telnyx API does not support direct transcript retrieval by call_id. We are fetching the list of latest transcriptions instead.)');
 
-    // Use SDK request method for transcript retrieval
+    // Corrected to use a valid Telnyx API endpoint.
+    // This will list recent recording transcriptions.
     const response = await telnyx.request({
       method: 'GET',
-      path: `/calls/${callId}/transcript`
+      path: `/recording_transcriptions`
     });
 
-    console.log('✅ Transcript retrieved successfully');
+    console.log('✅ Recording transcriptions list retrieved successfully');
+    
+    // If a callId was provided, try to find a matching transcript in the list.
+    // This is a workaround and may not be reliable.
+    if (callId && response.data && Array.isArray(response.data.data)) {
+        const transcript = response.data.data.find(t => t.call_id === callId);
+        if (transcript) {
+            console.log(`✅ Found a matching transcript for call_id: ${callId}`);
+            return transcript;
+        } else {
+            console.log(`🟡 No matching transcript found for call_id: ${callId} in the latest batch.`);
+        }
+    }
+    
     return response.data || response;
   } catch (error) {
-    console.error('❌ Error retrieving transcript:', error.response?.data || error.message);
+    console.error('❌ Error retrieving transcript list:', error.response?.data || error.message);
     throw error;
   }
 }
