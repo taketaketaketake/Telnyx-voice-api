@@ -361,6 +361,119 @@
             color: #86868b;
             padding: 30px;
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid #e5e5e7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+            color: #1d1d1f;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: #86868b;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+        }
+
+        .modal-close:hover {
+            color: #1d1d1f;
+        }
+
+        .modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .detail-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #86868b;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .detail-value {
+            color: #1d1d1f;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .transcript-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .insights-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .insight-item-detail {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .insight-item-detail strong {
+            color: #007aff;
+        }
     </style>
 </head>
 <body>
@@ -388,16 +501,6 @@
         </div>
     </div>
 
-    <!-- Last 24 Hours Section -->
-    <div class="section">
-        <div class="section-title">
-            📞 LAST 24 HOURS <span id="callCount" style="color: #86868b; font-size: 14px; font-weight: 400;"></span>
-        </div>
-        <div id="callsTableContainer">
-            <div class="loading">Loading calls...</div>
-        </div>
-    </div>
-
     <!-- Recent AI Insights Section -->
     <div class="section">
         <div class="section-title">
@@ -408,9 +511,21 @@
         </div>
     </div>
 
+    <!-- Call Details Modal -->
+    <div id="callDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Call Details</h3>
+                <button class="modal-close" onclick="closeCallModal()">&times;</button>
+            </div>
+            <div id="modalBody" class="modal-body">
+                <div class="loading">Loading call details...</div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let autoRefreshInterval;
-        let expandedCalls = new Set();
 
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
@@ -422,7 +537,6 @@
         async function loadAllData() {
             await Promise.all([
                 loadLiveCalls(),
-                loadLast24Hours(),
                 loadRecentInsights()
             ]);
             updateTimestamp();
@@ -504,143 +618,41 @@
             }
         }
 
-        // Load last 24 hours of calls
-        async function loadLast24Hours() {
-            try {
-                const response = await fetch('/api/calls?limit=100');
-                const data = await response.json();
-
-                // Filter to last 24 hours
-                const now = new Date();
-                const yesterday = new Date(now - 24 * 60 * 60 * 1000);
-
-                const recentCalls = data.data.filter(call => {
-                    const callDate = new Date(call.created_at);
-                    return callDate >= yesterday;
-                });
-
-                // Update count
-                document.getElementById('callCount').textContent = `(${recentCalls.length} calls)`;
-
-                const container = document.getElementById('callsTableContainer');
-
-                if (recentCalls.length === 0) {
-                    container.innerHTML = '<div class="no-data">No calls in the last 24 hours</div>';
-                    return;
-                }
-
-                // Build table
-                let tableHtml = `
-                    <table class="calls-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 20px;"></th>
-                                <th>Time</th>
-                                <th>Phone Number</th>
-                                <th>Customer Name</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
-
-                recentCalls.forEach(call => {
-                    const time = formatTime(call.created_at);
-                    const isExpanded = expandedCalls.has(call.call_id);
-
-                    tableHtml += `
-                        <tr class="call-row ${isExpanded ? 'expanded' : ''}" onclick="toggleCallDetails('${call.call_id}')">
-                            <td><span class="expand-icon">▶</span></td>
-                            <td>${time}</td>
-                            <td class="phone">${call.phone_number || '-'}</td>
-                            <td>${call.customer_name || '-'}</td>
-                            <td><span class="status ${call.status}">${call.status}</span></td>
-                        </tr>
-                        <tr class="call-details-row ${isExpanded ? 'show' : ''}" id="details-${call.call_id}">
-                            <td colspan="5">
-                                <div class="call-details-content" id="content-${call.call_id}">
-                                    ${isExpanded ? '<div class="loading">Loading details...</div>' : ''}
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                tableHtml += '</tbody></table>';
-                container.innerHTML = tableHtml;
-
-                // Reload expanded call details
-                expandedCalls.forEach(callId => {
-                    loadCallDetails(callId);
-                });
-
-            } catch (error) {
-                console.error('Error loading calls:', error);
-                document.getElementById('callsTableContainer').innerHTML =
-                    '<div class="no-data">Error loading calls</div>';
-            }
-        }
-
-        // Toggle call details
-        async function toggleCallDetails(callId) {
-            const detailsRow = document.getElementById(`details-${callId}`);
-            const callRow = detailsRow.previousElementSibling;
-
-            if (expandedCalls.has(callId)) {
-                // Collapse
-                expandedCalls.delete(callId);
-                detailsRow.classList.remove('show');
-                callRow.classList.remove('expanded');
-            } else {
-                // Expand
-                expandedCalls.add(callId);
-                detailsRow.classList.add('show');
-                callRow.classList.add('expanded');
-                await loadCallDetails(callId);
-            }
-        }
-
-        // Navigate to a call from AI insights
+        // Open call details modal
         async function navigateToCall(callId) {
-            const detailsRow = document.getElementById(`details-${callId}`);
-
-            // Check if call is in the current table
-            if (!detailsRow) {
-                alert('This call is not in the current 24-hour view. It may have aged out.');
-                return;
-            }
-
-            const callRow = detailsRow.previousElementSibling;
-
-            // Expand if not already expanded
-            if (!expandedCalls.has(callId)) {
-                expandedCalls.add(callId);
-                detailsRow.classList.add('show');
-                callRow.classList.add('expanded');
-                await loadCallDetails(callId);
-            }
-
-            // Scroll to the call row
-            callRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-            // Add a temporary highlight effect
-            callRow.style.backgroundColor = '#fff3cd';
-            setTimeout(() => {
-                callRow.style.backgroundColor = '';
-            }, 2000);
+            openCallModal(callId);
         }
 
-        // Load call details (transcript + insights)
-        async function loadCallDetails(callId) {
-            const container = document.getElementById(`content-${callId}`);
+        // Open modal and load call details
+        async function openCallModal(callId) {
+            const modal = document.getElementById('callDetailsModal');
+            const modalBody = document.getElementById('modalBody');
+            const modalTitle = document.getElementById('modalTitle');
 
-            // If container doesn't exist (call filtered out), remove from expanded set and return
-            if (!container) {
-                expandedCalls.delete(callId);
-                return;
+            modalTitle.textContent = `Call Details - ${callId}`;
+            modalBody.innerHTML = '<div class="loading">Loading call details...</div>';
+            modal.style.display = 'block';
+
+            await loadCallDetailsInModal(callId);
+        }
+
+        // Close modal
+        function closeCallModal() {
+            const modal = document.getElementById('callDetailsModal');
+            modal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('callDetailsModal');
+            if (event.target === modal) {
+                closeCallModal();
             }
+        }
 
-            container.innerHTML = '<div class="loading">Loading details...</div>';
+        // Load call details into modal
+        async function loadCallDetailsInModal(callId) {
+            const modalBody = document.getElementById('modalBody');
 
             try {
                 // Fetch call data, transcript, and insights in parallel
@@ -658,6 +670,18 @@
 
                 // Basic call info
                 if (callData) {
+                    html += `
+                        <div class="detail-section">
+                            <div class="detail-label">📞 Call Information</div>
+                            <div class="detail-value">
+                                <strong>Phone:</strong> ${callData.phone_number || 'Unknown'}<br>
+                                <strong>Customer:</strong> ${callData.customer_name || 'Not provided'}<br>
+                                <strong>Time:</strong> ${new Date(callData.created_at).toLocaleString()}<br>
+                                <strong>Status:</strong> <span class="status ${callData.status}">${callData.status}</span>
+                            </div>
+                        </div>
+                    `;
+
                     if (callData.address) {
                         html += `
                             <div class="detail-section">
@@ -734,17 +758,11 @@
 
                 html += '</div>';
 
-                // Check if container still exists before updating (could be removed during async fetch)
-                if (container) {
-                    container.innerHTML = html || '<div class="no-data">No additional details available</div>';
-                }
+                modalBody.innerHTML = html || '<div class="no-data">No additional details available</div>';
 
             } catch (error) {
                 console.error('Error loading call details:', error);
-                // Check if container still exists before updating
-                if (container) {
-                    container.innerHTML = '<div class="no-data">Error loading details</div>';
-                }
+                modalBody.innerHTML = '<div class="no-data">Error loading details</div>';
             }
         }
 
